@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+//////////////////////////////////////////////////////
+// MODELS
+//////////////////////////////////////////////////////
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role   @default(CUSTOMER)
+
+  vendorProfile   VendorProfile?
+
+  reviews  Review[]
+  bookings Booking[] @relation("CustomerBookings")
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////////////////////
+
+model VendorProfile {
+  id                String      @id @default(uuid())
+  businessName      String?
+  bio               String?
+  location          String?
+  isVerified        Boolean     @default(false)
+
+  userId            String      @unique
+  user              User        @relation(fields: [userId], references: [id])
+
+  services          Service[]
+  reviews           Review[]
+  bookings          Booking[]   @relation("VendorBookings")
+
+  createdAt         DateTime    @default(now())
+}
+
+//////////////////////////////////////////////////////
+
+model Service {
+  id          String         @id @default(uuid())
+  title       String
+  images      serviceImage[]
+  description String
+  price       Float?
+
+  vendorId    String
+  vendor      VendorProfile  @relation(fields: [vendorId], references: [id])
+
+  categoryId  String
+  category    Category       @relation(fields: [categoryId], references: [id])
+  
+  bookings    Booking[]
+  reviews     Review[]
+
+  createdAt   DateTime       @default(now())
+}
+
+//////////////////////////////////////////////////////
+
+model serviceImage {
+  id               String     @id @default(uuid())
+  url              String
+
+  serviceId        String
+  service          Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime   @default(now())
+}
+
+//////////////////////////////////////////////////////
+
+model Category {
+  id           String @id @default(uuid())
+  name         String @unique
+
+  services     Service[]
+}
+
+//////////////////////////////////////////////////////
+
+model Review {
+  id         String        @id   @default(uuid())
+  rating     Int
+  comment    String?
+  createdAt  DateTime      @default(now())
+
+  bookingId  String        @unique
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+
+  userId     String
+  user       User          @relation(fields: [userId], references: [id])
+
+  vendorId   String
+  vendor     VendorProfile @relation(fields: [vendorId], references: [id])
+
+  serviceId  String
+  service    Service       @relation(fields: [serviceId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+
+model Booking {
+  id          String        @id @default(uuid())
+  createdAt   DateTime      @default(now())
+  acceptedAt  DateTime?
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  customerId  String
+  customer    User          @relation("CustomerBookings", fields: [customerId], references: [id])
+
+  vendorId    String
+  vendor      VendorProfile @relation("VendorBookings", fields: [vendorId], references: [id])
+
+  serviceId   String
+  service     Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  status      BookingStatus @default(PENDING)
+  message     String?
+
+  review     Review?
+  messages    Message[]
+}
+
+//////////////////////////////////////////////////////
+
+model Message {
+  id          String   @id @default(uuid())
+  content     String
+
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+
+  senderId    String
+  sender      User     @relation(fields: [senderId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
