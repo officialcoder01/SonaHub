@@ -33,11 +33,7 @@ const getInitials = (name = "") =>
 const getSpecialization = (vendor) =>
   vendor.specialty || vendor.specialization || vendor.category?.name || "Professional Artisan";
 
-const getRating = (vendor, index) =>
-  Math.min(
-    Number(vendor.reviewStats?.averageRating || vendor.averageRating || 4.7 + index * 0.1),
-    5,
-  ).toFixed(1);
+const getRating = (vendor) => Number(vendor?.reviewStat?.averageRating || 0);
 
 const getCompletedJobs = (vendor, index) =>
   vendor.completedJobs || vendor.jobsCompleted || 7 + index;

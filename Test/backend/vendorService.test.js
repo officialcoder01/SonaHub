@@ -117,6 +117,7 @@ describe("vendorService", () => {
         bio: "Premium event planning",
         location: "Lagos",
         user: { name: "Jane Doe" },
+        reviews: [{ rating: 5 }, { rating: 4 }],
       },
       {
         id: "profile-2",
@@ -124,6 +125,7 @@ describe("vendorService", () => {
         bio: "Delicious catering services",
         location: "Abuja",
         user: { name: "John Smith" },
+        reviews: [{ rating: 5 }, { rating: 4 }],
       },
     ];
 
@@ -132,18 +134,15 @@ describe("vendorService", () => {
     const result = await getAllVendors();
 
     expect(mockPrisma.vendorProfile.findMany).toHaveBeenCalledWith({
-      select: {
-        id: true,
-        businessName: true,
-        bio: true,
-        location: true,
+      include: {
         user: {
           select: {
             name: true,
           },
         },
+        reviews: true
       },
     });
-    expect(result).toEqual(vendors);
+    expect(result).toMatchObject(vendors);
   });
 });

@@ -15,11 +15,7 @@ const getInitials = (name = "") =>
 const getSpecialization = (vendor) =>
   vendor.specialty || vendor.specialization || vendor.category?.name || "Master Artisan";
 
-const getRating = (vendor, index) =>
-  Math.min(
-    Number(vendor.reviewStats?.averageRating || vendor.averageRating || 4.9 - index * 0.1),
-    5,
-  ).toFixed(1);
+const getRating = (vendor) => Number(vendor?.reviewStat.averageRating || 0)
 
 export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
   const topArtisans = vendors.slice(0, 3);
@@ -107,12 +103,8 @@ export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
 
                   <div className="mt-auto flex items-center gap-2 pt-3">
                     <button type="button" className="inline-flex flex-1 items-center justify-center rounded-md bg-amber-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-                      Hire Artisan
+                      View Profile
                     </button>
-                    <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-bold text-slate-700">
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
-                      {rating}
-                    </span>
                   </div>
                 </article>
               );

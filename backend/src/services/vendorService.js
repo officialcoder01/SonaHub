@@ -1,4 +1,5 @@
 import prisma from "../config/prisma.js";
+import { calculateReviewStats } from "../utils/ratingUtils.js";
 
 // Helper function to ensure only vendors 
 // can create or view vendor profiles
@@ -52,18 +53,25 @@ export const getVendorProfileByUserId = async (userId, role) => {
 
 // Retrieve all vendors for public listing
 export const getAllVendors = async () => {
-  return prisma.vendorProfile.findMany({
-    select: {
-      id: true,
-      businessName: true,
-      bio: true,
-      location: true,
+  const vendors = await prisma.vendorProfile.findMany({
+    include: {
       user: {
         select: {
           name: true,
         },
       },
+      reviews: true,
     },
   });
+
+  const vendorsWithReviewStats = vendors.map((vendor) => {
+    const reviewStat = calculateReviewStats(vendor.reviews);
+    return {
+      ...vendor,
+      reviewStat
+    };
+  })
+
+  return vendorsWithReviewStats;
 };
 
