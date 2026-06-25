@@ -1,0 +1,101 @@
+const jwt = require("jsonwebtoken");
+const request = require("supertest");
+
+const mockPrisma = {
+  vendorProfile: {
+    findUnique: jest.fn(),
+  },
+};
+
+jest.mock("../../backend/src/config/prisma.js", () => ({
+  __esModule: true,
+  default: mockPrisma,
+}));
+
+jest.mock("../../backend/src/config/cloudinary.js", () => ({
+  __esModule: true,
+  default: {
+    uploader: {
+      upload_stream: jest.fn(),
+    },
+    v2: {
+      uploader: {
+        upload_stream: jest.fn(),
+      },
+    },
+  },
+}));
+
+process.env.JWT_SECRET = "test-secret";
+
+const app = require("../../backend/src/app.js").default;
+
+describe("vendor routes", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("GET /api/vendors/:id", () => {
+    const vendorDetails = {
+        id: "vendor-1",
+        businessName: "John Studios",
+        bio: "Professional Photographer",
+        location: "Abuja",
+        userId: "user-1",
+        isVerified: true,
+        createdAt: "2026-05-27T00:00:00.000Z",
+        user: { name: "John Doe" },
+        services: [
+            { id: "service-1", name: "Wedding Photograph" },
+            { id: "service-2", name: "Birthday Photoshot" },
+        ],
+        reviews: [
+            {
+                id: "review-1",
+                rating: 5,
+                comment: "Great work John",
+                userId: "user-1",
+                createdAt: "2026-05-27T00:00:00.000Z"
+            },
+            {
+                id: "review-2",
+                rating: 4,
+                comment: "John is good at what he does",
+                userId: "user-2",
+                createdAt: "2026-05-27T00:00:00.000Z"
+            }
+        ]
+    }
+
+    const expectedVendorQuery = {
+        where: { id: "vendor-1" },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                },
+            },
+            services: true,
+            reviews: true,
+        }
+    }
+
+    test("should successfully fetch vendor by id", async () => {
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorDetails);
+
+      const res = await request(app).get("/api/vendors/vendor-1");
+      expect(res.status).toBe(200);
+      expect(res.body.vendorProfile).toMatchObject({
+        id: "vendor-1",
+        businessName: "John Studios",
+        bio: "Professional Photographer",
+        location: "Abuja",
+        userId: "user-1",
+        isVerified: true,
+        createdAt: "2026-05-27T00:00:00.000Z",
+        user: { name: "John Doe" },
+      })
+      expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith(expectedVendorQuery);
+    })
+  })
+});

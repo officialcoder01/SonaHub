@@ -1,6 +1,7 @@
 import {
   createVendorProfile,
   getVendorProfileByUserId,
+  getVendorProfileByVendorId,
   getAllVendors,
 } from "../services/vendorService.js";
 
@@ -32,6 +33,20 @@ export const getMyProfile = async (req, res) => {
     });
   }
 };
+
+export const getVendorPublicProfile = async (req, res) => {
+  try {
+    const details = await getVendorProfileByVendorId(req.params.id)
+
+    res.status(200).json({ 
+      vendorProfile: details
+    });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      message: err.message || "Unable to fetch service",
+    });
+  }
+}
 
 export const listVendors = async (req, res) => {
   try {

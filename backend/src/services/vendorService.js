@@ -51,6 +51,29 @@ export const getVendorProfileByUserId = async (userId, role) => {
   });
 };
 
+// Retrive vendor profile by vendor ID for public vendor profile page
+export const getVendorProfileByVendorId = async (vendorId) => {
+  const vendor = await prisma.vendorProfile.findUnique({
+    where: { id: vendorId },
+    include: {
+      user: {
+        select: {
+          name: true,
+        }
+      },
+      services: true,
+      reviews: true,
+    }
+  })
+
+  const reviewStat = await calculateReviewStats(vendor.reviews);
+
+  return {
+    ...vendor,
+    reviewStat
+  }
+};
+
 // Retrieve all vendors for public listing
 export const getAllVendors = async () => {
   const vendors = await prisma.vendorProfile.findMany({
@@ -74,4 +97,3 @@ export const getAllVendors = async () => {
 
   return vendorsWithReviewStats;
 };
-
