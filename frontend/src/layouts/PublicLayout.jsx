@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/ui/Navbar";
+import Footer from "../components/ui/Footer";
 
 export default function PublicLayout({ children, contentClassName = "" }) {
   const navigate = useNavigate();
@@ -21,10 +22,11 @@ export default function PublicLayout({ children, contentClassName = "" }) {
         onLogout={handleLogout}
       />
       <main
-        className={`mx-auto w-full max-w-6xl px-4 pb-10 pt-15 sm:px-6 lg:px-8 lg:pt-15 ${contentClassName}`}
+        className={`mx-auto w-full max-w-6xl px-4 pt-15 sm:px-6 lg:px-8 lg:pt-15 ${contentClassName}`}
       >
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

@@ -124,7 +124,7 @@ export default function CTASection() {
             </div>
           </DashboardPreviewCard>
 
-          <DashboardPreviewCard className="mt-3 bg-emerald-500 text-white">
+          <DashboardPreviewCard className="mt-3 bg-emerald-800 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] font-semibold text-emerald-50">

@@ -79,7 +79,7 @@ export default function Market() {
   ];
 
   return (
-    <PublicLayout contentClassName="max-w-[80rem] pb-0 pt-20 lg:pt-20">
+    <PublicLayout contentClassName="max-w-[80rem] pb-10 pt-20 lg:pt-20">
       <div className="mb-8 mt-4 lg:mt-10">
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
           Marketplace

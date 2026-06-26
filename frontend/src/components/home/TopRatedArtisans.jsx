@@ -12,8 +12,8 @@ const getInitials = (name = "") =>
     .join("")
     .toUpperCase();
 
-const getSpecialization = (vendor) =>
-  vendor.specialty || vendor.specialization || vendor.category?.name || "Master Artisan";
+const getBio = (vendor) =>
+  vendor.bio || vendor.specialization || vendor.category?.name || "Master Artisan";
 
 const getRating = (vendor) => Number(vendor?.reviewStat.averageRating || 0)
 
@@ -70,11 +70,11 @@ export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
                     {vendorName}
                   </h3>
                   <p className="mt-1 line-clamp-1 text-xs font-medium text-slate-600">
-                    {getSpecialization(vendor)}
+                    {getBio(vendor)}
                   </p>
                   <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-medium text-slate-500">
                     <MapPin className="h-3 w-3" aria-hidden="true" />
-                    {vendor.location || "Lagos, Nigeria"}
+                    {vendor.location || "Location Unavailable"}
                   </p>
 
                   <div className="mt-3 space-y-1.5 border-t border-amber-200/80 pt-3 text-left text-[11px] text-slate-600">

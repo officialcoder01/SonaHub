@@ -30,8 +30,8 @@ const getInitials = (name = "") =>
     .join("")
     .toUpperCase();
 
-const getSpecialization = (vendor) =>
-  vendor.specialty || vendor.specialization || vendor.category?.name || "Professional Artisan";
+const getBio = (vendor) =>
+  vendor.bio || vendor.specialization || vendor.category?.name || "Professional Artisan";
 
 const getRating = (vendor) => Number(vendor?.reviewStat?.averageRating || 0);
 
@@ -118,7 +118,7 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
                   {vendorName}
                 </h3>
                 <p className="mt-1 line-clamp-1 text-xs font-medium text-slate-500">
-                  {getSpecialization(vendor)}
+                  {getBio(vendor)}
                 </p>
                 <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-medium text-slate-500">
                   <MapPin className="h-3 w-3" aria-hidden="true" />

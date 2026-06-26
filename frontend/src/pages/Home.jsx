@@ -4,7 +4,6 @@ import CTASection from "../components/home/CTASection";
 import FeaturedServices from "../components/home/FeaturedServices";
 import FeaturedVendors from "../components/home/FeaturedVendors";
 import HeroSection from "../components/home/HeroSection";
-import Footer from "../components/ui/Footer";
 import HowItWorks from "../components/home/HowItWorks";
 import TopRatedArtisans from "../components/home/TopRatedArtisans";
 import PublicLayout from "../layouts/PublicLayout";
@@ -147,8 +146,6 @@ export default function Home() {
         />
 
         <CTASection />
-
-        <Footer />
       </div>
     </PublicLayout>
   );
