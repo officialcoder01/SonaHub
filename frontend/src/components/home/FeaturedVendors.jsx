@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Briefcase, Clock, MapPin, Star } from "lucide-react";
 
@@ -42,6 +43,8 @@ const getResponseTime = (vendor, index) =>
   vendor.responseTime || `${index % 2 === 0 ? 2 : 1} hours`;
 
 export default function FeaturedVendors({ vendors = [], isLoading, error }) {
+  // Navigate to the public Vendor Profile page when a card is clicked
+  const navigate = useNavigate();
   return (
     <section className="relative left-1/2 w-screen -translate-x-1/2 bg-slate-50 px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto max-w-[80rem] space-y-6">
@@ -147,7 +150,11 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
                 </div>
 
                 <div className="mt-auto flex items-center gap-2 pt-3">
-                  <button type="button" className="inline-flex flex-1 items-center justify-center rounded-md bg-blue-600 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                  <button
+                    type="button"
+                    className="inline-flex flex-1 items-center justify-center rounded-md bg-blue-600 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    onClick={() => vendor.id && navigate(`/vendors/${vendor.id}`)}
+                  >
                     View Profile
                   </button>
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-700">

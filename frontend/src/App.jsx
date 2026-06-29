@@ -16,6 +16,7 @@ import ReviewsPage from "./pages/dashboard/ReviewsPage";
 import ServicesPage from "./pages/dashboard/ServicesPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import VendorProfilePage from "./pages/dashboard/VendorProfilePage";
+import VendorPublicProfilePage from "./pages/VendorProfilePage";
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<Market />} />
           <Route path="/market/services/:id" element={<ServiceDetailsPage />} />
+          {/* Public vendor profile page — no auth required */}
+          <Route path="/vendors/:id" element={<VendorPublicProfilePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route

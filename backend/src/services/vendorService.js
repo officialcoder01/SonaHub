@@ -61,17 +61,51 @@ export const getVendorProfileByVendorId = async (vendorId) => {
           name: true,
         }
       },
-      services: true,
-      reviews: true,
+      services: {
+        include: {
+          images: true,
+          category: true,
+          reviews: true,
+          vendor: {
+            select: {
+              businessName: true,
+              location: true,
+            }
+          }
+        }
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            }
+          }
+        }
+      },
     }
   })
 
-  const reviewStat = await calculateReviewStats(vendor.reviews);
+  if (!vendor) {
+    return null;
+  }
+
+   // Calculate review stats concurrently to improve performance
+  const [vendorReviewStat, serviceWithStat] = await Promise.all([
+    calculateReviewStats(vendor.reviews),
+    Promise.all(
+      vendor.services.map(async (service) => ({
+        ...service,
+        reviewStat: await calculateReviewStats(service.reviews)
+      }))
+    )
+  ]);
 
   return {
     ...vendor,
-    reviewStat
-  }
+    reviewStat: vendorReviewStat,
+    serviceWithStat
+  };
 };
 
 // Retrieve all vendors for public listing

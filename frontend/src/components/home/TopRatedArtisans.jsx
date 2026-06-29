@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Briefcase, Clock, MapPin, Star, Trophy } from "lucide-react";
 
 const getVendorName = (vendor) =>
@@ -18,6 +19,7 @@ const getBio = (vendor) =>
 const getRating = (vendor) => Number(vendor?.reviewStat.averageRating || 0)
 
 export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
+  const navigate = useNavigate();
   const topArtisans = vendors.slice(0, 3);
 
   return (
@@ -102,9 +104,13 @@ export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
                   </div>
 
                   <div className="mt-auto flex items-center gap-2 pt-3">
-                    <button type="button" className="inline-flex flex-1 items-center justify-center rounded-md bg-amber-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-                      View Profile
-                    </button>
+                  <button
+                    type="button"
+                    className="inline-flex flex-1 items-center justify-center rounded-md bg-amber-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                    onClick={() => vendor.id && navigate(`/vendors/${vendor.id}`)}
+                  >
+                    View Profile
+                  </button>
                   </div>
                 </article>
               );

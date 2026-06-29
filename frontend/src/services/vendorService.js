@@ -27,6 +27,13 @@ export const getVendors = async () => {
   return handleResponse(response);
 };
 
+// Fetch a single vendor's public profile by vendor profile ID.
+// Returns: { vendorProfile: { ...vendor, services, reviews, reviewStat } }
+export const getVendorById = async (vendorId) => {
+  const response = await fetch(`${API_BASE_URL}/${vendorId}`);
+  return handleResponse(response);
+};
+
 export const createProfile = async (data, token) => {
   const response = await fetch(`${API_BASE_URL}/profile`, {
     method: "POST",

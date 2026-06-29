@@ -37,34 +37,50 @@ describe("vendor routes", () => {
 
   describe("GET /api/vendors/:id", () => {
     const vendorDetails = {
-        id: "vendor-1",
-        businessName: "John Studios",
-        bio: "Professional Photographer",
-        location: "Abuja",
-        userId: "user-1",
-        isVerified: true,
-        createdAt: "2026-05-27T00:00:00.000Z",
-        user: { name: "John Doe" },
-        services: [
-            { id: "service-1", name: "Wedding Photograph" },
-            { id: "service-2", name: "Birthday Photoshot" },
-        ],
-        reviews: [
-            {
-                id: "review-1",
-                rating: 5,
-                comment: "Great work John",
-                userId: "user-1",
-                createdAt: "2026-05-27T00:00:00.000Z"
-            },
-            {
-                id: "review-2",
-                rating: 4,
-                comment: "John is good at what he does",
-                userId: "user-2",
-                createdAt: "2026-05-27T00:00:00.000Z"
-            }
-        ]
+      id: "vendor-1",
+      businessName: "John Studios",
+      bio: "Professional Photographer",
+      location: "Abuja",
+      userId: "user-1",
+      isVerified: true,
+      createdAt: "2026-05-27T00:00:00.000Z",
+      user: { name: "John Doe" },
+      services: [
+        {
+          id: "service-1",
+          name: "Wedding Photograph",
+          reviews: [
+            { id: "review-1", rating: 5 },
+            { id: "review-2", rating: 4 },
+            { id: "review-3", rating: 3 },
+          ]
+        },
+        {
+          id: "service-2",
+          name: "Birthday Photoshot",
+          reviews: [
+            { id: "review-1", rating: 5 },
+            { id: "review-2", rating: 4 },
+            { id: "review-3", rating: 3 },
+          ]
+        },
+      ],
+      reviews: [
+        {
+          id: "review-1",
+          rating: 5,
+          comment: "Great work John",
+          userId: "user-1",
+          createdAt: "2026-05-27T00:00:00.000Z"
+        },
+        {
+          id: "review-2",
+          rating: 4,
+          comment: "John is good at what he does",
+          userId: "user-2",
+          createdAt: "2026-05-27T00:00:00.000Z"
+        }
+      ]
     }
 
     const expectedVendorQuery = {
@@ -75,8 +91,28 @@ describe("vendor routes", () => {
                     name: true,
                 },
             },
-            services: true,
-            reviews: true,
+            services: {
+              include: {
+                images: true,
+                category: true,
+                reviews: true,
+                vendor: {
+                  select: {
+                    businessName: true,
+                    location: true,
+                  }
+                }
+              }
+            },
+            reviews: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                  }
+                }
+              }
+            },
         }
     }
 

@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 
 export default function VendorCard({ vendor }) {
+  const navigate = useNavigate();
   const reviewStats = vendor?.reviewStats || {};
   const averageRating = Number(reviewStats.averageRating || 0);
   const totalReviews = Number(reviewStats.totalReviews || 0);
@@ -63,7 +65,12 @@ export default function VendorCard({ vendor }) {
         </div>
       </div>
 
-      <button type="button" className="btn-secondary mt-5 w-full">
+      {/* Navigate to the public Vendor Profile page */}
+      <button
+        type="button"
+        className="btn-secondary mt-5 w-full"
+        onClick={() => vendor?.id && navigate(`/vendors/${vendor.id}`)}
+      >
         View Profile
       </button>
     </section>
