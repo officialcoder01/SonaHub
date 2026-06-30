@@ -133,5 +133,34 @@ describe("vendor routes", () => {
       })
       expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith(expectedVendorQuery);
     })
+
+    test("should calculate service review statistics correctly", async () => {
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue({
+        ...vendorDetails,
+        services: [
+          {
+            ...vendorDetails.services[0],
+            reviews: [{ rating: 5 }, { rating: 5 }, { rating: 4 }]
+          }
+        ]
+      })
+
+      const res = await request(app).get("/api/vendors/vendor-1");
+      expect(res.status).toBe(200);
+      expect(res.body.vendorProfile.services[0].reviewStats).toEqual({
+        averageRating: 4.7,
+        totalReviews: 3,
+      });
+    });
+
+    test("should return 404 if vendor not found", async () => {
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(null);
+
+      const res = await request(app).get("/api/vendors/vendor-1");
+
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ message: "Vendor not found" });
+      expect(mockPrisma.vendorProfile.findUnique).not.toHaveBeenCalledWith();
+    })
   })
 });
