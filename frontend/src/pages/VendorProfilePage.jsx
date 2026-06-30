@@ -111,7 +111,7 @@ export default function VendorProfilePage() {
           {/* 4. Customer Reviews – with initial collapse + expand */}
           <VendorReviews
             reviews={vendor.reviews || []}
-            reviewStat={vendor.reviewStat}
+            reviewStats={vendor.reviewStats}
           />
 
           {/* 5. All Services – full grid with progressive reveal */}

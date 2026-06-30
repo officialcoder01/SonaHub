@@ -21,8 +21,8 @@ export default function VendorHeader({ vendor }) {
   const bio = vendor?.bio || "";
 
   // Rating data lives in the reviewStat object returned by the backend
-  const averageRating = Number(vendor?.reviewStat?.averageRating || 0);
-  const totalReviews = Number(vendor?.reviewStat?.totalReviews || 0);
+  const averageRating = Number(vendor?.reviewStats?.averageRating || 0);
+  const totalReviews = Number(vendor?.reviewStats?.totalReviews || 0);
   const ratingDisplay = averageRating ? averageRating.toFixed(1) : "New";
 
   const initials = getInitials(businessName);

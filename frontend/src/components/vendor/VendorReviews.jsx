@@ -60,12 +60,12 @@ function ReviewCard({ review }) {
   );
 }
 
-export default function VendorReviews({ reviews = [], reviewStat }) {
+export default function VendorReviews({ reviews = [], reviewStats }) {
   // Controls whether all reviews are visible or only the initial subset
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const averageRating = Number(reviewStat?.averageRating || 0);
-  const totalReviews = Number(reviewStat?.totalReviews || reviews.length || 0);
+  const averageRating = Number(reviewStats?.averageRating || 0);
+  const totalReviews = Number(reviewStats?.totalReviews || reviews.length || 0);
 
   // Slice to INITIAL_VISIBLE_COUNT unless the user has expanded the list
   const visibleReviews = isExpanded
