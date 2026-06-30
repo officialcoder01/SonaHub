@@ -87,24 +87,21 @@ export const getVendorProfileByVendorId = async (vendorId) => {
   })
 
   if (!vendor) {
-    return null;
+    const error = new Error("Vendor not found");
+    error.status = 404;
+    throw error;
   }
 
-   // Calculate review stats concurrently to improve performance
-  const [vendorReviewStat, serviceWithStat] = await Promise.all([
-    calculateReviewStats(vendor.reviews),
-    Promise.all(
-      vendor.services.map(async (service) => ({
-        ...service,
-        reviewStat: await calculateReviewStats(service.reviews)
-      }))
-    )
-  ]);
+  const vendorReviewStat = calculateReviewStats(vendor.reviews);
+  const services = vendor.services.map((service) => ({
+    ...service,
+    reviewStats: calculateReviewStats(service.reviews),
+  }));
 
   return {
     ...vendor,
-    reviewStat: vendorReviewStat,
-    serviceWithStat
+    reviewStats: vendorReviewStat,
+    services
   };
 };
 
