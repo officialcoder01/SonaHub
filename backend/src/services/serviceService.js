@@ -163,7 +163,6 @@ export const getServiceDetailsById = async (serviceId) => {
     include: {
       images: true,
       category: true,
-      reviews: true,
       vendor: {
         include: {
           user: {
@@ -173,6 +172,15 @@ export const getServiceDetailsById = async (serviceId) => {
           },
           reviews: true
         },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            }
+          }
+        }
       },
     },
   });
@@ -238,6 +246,7 @@ export const getServiceDetailsById = async (serviceId) => {
         id: service.category.id,
         name: service.category.name,
       },
+      reviews: service.reviews,
       reviewStats: serviceReviewStats,
       vendor: {
         id: vendor.id,

@@ -452,9 +452,27 @@ describe("service routes", () => {
           name: "Jane Doe",
         },
         reviews: [
-          { id: "review-1", rating: 5 },
-          { id: "review-2", rating: 4 },
-          { id: "review-3", rating: 3 },
+          {
+            id: "review-1",
+            rating: 5,
+            user: {
+              name: "John Doe",
+            }
+          },
+          {
+            id: "review-2",
+            rating: 4,
+            user: {
+              name: "Chris Doe",
+            }
+          },
+          {
+            id: "review-3",
+            rating: 3,
+            user: {
+              name: "Jerry Doe",
+            }
+          },
         ],
       },
     };
@@ -512,7 +530,6 @@ describe("service routes", () => {
       include: {
         images: true,
         category: true,
-        reviews: true,
         vendor: {
           include: {
             user: {
@@ -522,6 +539,15 @@ describe("service routes", () => {
             },
             reviews: true,
           },
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              }
+            }
+          }
         },
       },
     };
