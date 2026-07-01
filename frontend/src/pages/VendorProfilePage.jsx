@@ -6,7 +6,7 @@ import VendorAbout from "../components/vendor/VendorAbout";
 import VendorFeaturedServices from "../components/vendor/VendorFeaturedServices";
 import VendorHeader from "../components/vendor/VendorHeader";
 import VendorProfileSkeleton from "../components/vendor/VendorProfileSkeleton";
-import VendorReviews from "../components/vendor/VendorReviews";
+import ReviewsSection from "../components/reviews/ReviewsSetion";
 import VendorServices from "../components/vendor/VendorServices";
 
 export default function VendorProfilePage() {
@@ -109,7 +109,7 @@ export default function VendorProfilePage() {
           <VendorFeaturedServices services={vendor.services || []} />
 
           {/* 4. Customer Reviews – with initial collapse + expand */}
-          <VendorReviews
+          <ReviewsSection
             reviews={vendor.reviews || []}
             reviewStats={vendor.reviewStats}
           />

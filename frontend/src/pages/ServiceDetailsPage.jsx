@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import RelatedServices from "../components/service-details/RelatedServices";
-import ReviewSection from "../components/service-details/ReviewSection";
+import ReviewsSection from "../components/reviews/ReviewsSetion";
 import ServiceDetailsSkeleton from "../components/service-details/ServiceDetailsSkeleton";
 import ServiceGallery from "../components/service-details/ServiceGallery";
 import ServiceInfo from "../components/service-details/ServiceInfo";
@@ -155,11 +155,14 @@ export default function ServiceDetailsPage() {
             <VendorCard vendor={service.vendor} />
           </section>
 
+          <ReviewsSection
+          reviews={service.reviews || []}
+          reviewStats={service.reviewStats}
+          />
+
           <div ref={relatedServicesRef}>
             <RelatedServices services={relatedServices} />
           </div>
-
-          <ReviewSection reviewStats={service.vendor?.reviewStats} />
 
           {!isVendor && (
             <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur md:hidden">
