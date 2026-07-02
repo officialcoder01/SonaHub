@@ -155,14 +155,14 @@ export default function ServiceDetailsPage() {
             <VendorCard vendor={service.vendor} />
           </section>
 
+          <div ref={relatedServicesRef}>
+            <RelatedServices services={relatedServices} />
+          </div>
+
           <ReviewsSection
           reviews={service.reviews || []}
           reviewStats={service.reviewStats}
           />
-
-          <div ref={relatedServicesRef}>
-            <RelatedServices services={relatedServices} />
-          </div>
 
           {!isVendor && (
             <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur md:hidden">
