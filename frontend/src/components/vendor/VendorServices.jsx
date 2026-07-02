@@ -27,13 +27,17 @@ export default function VendorServices({ services = [] }) {
   ];
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
-        All Services
-      </p>
-      <h2 className="mt-1 text-xl font-bold text-slate-950">
-        Explore What This Artisan Offers
-      </h2>
+    <section className="relative left-1/2 w-screen -translate-x-1/2 bg-slate-50 px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
+      <div className="mx-auto max-w-[80rem] space-y-6">
+        {/* ── Section header ──────────────────────────────────────── */}
+        <div className="flex-1 text-center">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700">
+            Services
+          </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+            Explore What This Artisan Offers
+          </h2>
+        </div>
 
       {services.length === 0 ? (
         // Empty state – section stays visible for layout consistency
@@ -73,6 +77,7 @@ export default function VendorServices({ services = [] }) {
           ) : null}
         </>
       )}
+      </div>
     </section>
   );
 }
