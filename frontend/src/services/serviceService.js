@@ -70,7 +70,7 @@ export const getMyServices = async (token) => {
 
 export const deleteService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}`, {
-    method: "DELETE",
+    method: "PATCH",
     headers: {
       Authorization: `Bearer ${token}`,
     },
