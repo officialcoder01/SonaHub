@@ -108,7 +108,7 @@ export const updateService = async ({ serviceId, userId, role }) => {
   assertVendor(role);
 
   const service = await prisma.service.findUnique({
-    where: { id: serviceId },
+    where: { id: serviceId, isArchived: false },
     include: {
       vendor: true,
     },
