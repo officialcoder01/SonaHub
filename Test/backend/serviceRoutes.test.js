@@ -15,6 +15,7 @@ const mockPrisma = {
     findMany: jest.fn(),
     findUnique: jest.fn(),
     delete: jest.fn(),
+    update: jest.fn(),
   },
   review: {
     findMany: jest.fn()
@@ -326,6 +327,9 @@ describe("service routes", () => {
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ services });
       expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        where: {
+          isArchived: false,
+        },
         include: {
           images: true,
           category: true,
@@ -364,7 +368,10 @@ describe("service routes", () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ services });
       expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
-        where: { vendorId: "vendor-1" },
+        where: {
+          vendorId: "vendor-1",
+          isArchived: false,
+        },
         include: {
           images: true,
           category: true,
@@ -394,6 +401,7 @@ describe("service routes", () => {
         id: "service-1",
         vendorId: "vendor-1",
         title: "Photography",
+        isArchived: false,
         vendor: {
           userId: "user-1",
         },
@@ -404,19 +412,23 @@ describe("service routes", () => {
       mockPrisma.service.findUnique.mockResolvedValue(services);
 
       const res = await request(app)
-        .delete("/api/services/service-1")
+        .patch("/api/services/service-1")
         .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ message: "Service deleted successfully" });
       expect(mockPrisma.service.findUnique).toHaveBeenCalledWith({
-        where: { id: "service-1" },
+        where: {
+          id: "service-1",
+          isArchived: false,
+        },
         include: {
           vendor: true,
         },
       });
-      expect(mockPrisma.service.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.service.update).toHaveBeenCalledWith({
         where: { id: "service-1" },
+        data: { isArchived: true },
       });
     });
   });
@@ -526,7 +538,10 @@ describe("service routes", () => {
     ];
 
     const expectedServiceQuery = {
-      where: { id: "service-1" },
+      where: {
+        id: "service-1",
+        isArchived: false,
+      },
       include: {
         images: true,
         category: true,
@@ -558,6 +573,7 @@ describe("service routes", () => {
         id: {
           not: "service-1",
         },
+        isArchived: false,
       },
       select: {
         id: true,

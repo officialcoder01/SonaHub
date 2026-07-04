@@ -92,6 +92,9 @@ describe("vendor routes", () => {
                 },
             },
             services: {
+              where: {
+                isArchived: false,
+              },
               include: {
                 images: true,
                 category: true,
