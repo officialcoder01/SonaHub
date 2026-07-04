@@ -84,7 +84,10 @@ export const getVendorServices = async ({ userId, role }) => {
   }
 
   return prisma.service.findMany({
-    where: { vendorId: vendorProfile.id },
+    where: {
+      vendorId: vendorProfile.id,
+      isArchived: false,
+    },
     include: {
       images: true,
       category: true,
@@ -99,8 +102,9 @@ export const getVendorServices = async ({ userId, role }) => {
   });
 };
 
-// Delete service by ID, ensuring the requesting user is the owner vendor
-export const deleteService = async ({ serviceId, userId, role }) => {
+// Update service to archieved because deleting the service
+// will delete the booking record and reviews
+export const updateService = async ({ serviceId, userId, role }) => {
   assertVendor(role);
 
   const service = await prisma.service.findUnique({
@@ -122,8 +126,11 @@ export const deleteService = async ({ serviceId, userId, role }) => {
     throw error;
   }
 
-  return prisma.service.delete({
+  return prisma.service.update({
     where: { id: serviceId },
+    data: {
+      isArchived: true,
+    },
   });
 };
 
@@ -131,6 +138,9 @@ export const deleteService = async ({ serviceId, userId, role }) => {
 // this is for public listing (no authentication required)
 export const getAllServices = async () => {
   const services = await prisma.service.findMany({
+    where: {
+      isArchived: false,
+    },
     include: {
       images: true,
       category: true,
@@ -159,7 +169,10 @@ export const getAllServices = async () => {
 // Retrieve a single public service details payload for the Service Details page.
 export const getServiceDetailsById = async (serviceId) => {
   const service = await prisma.service.findUnique({
-    where: { id: serviceId },
+    where: {
+      id: serviceId,
+      isArchived: false,
+    },
     include: {
       images: true,
       category: true,
@@ -197,6 +210,7 @@ export const getServiceDetailsById = async (serviceId) => {
       id: {
         not: service.id,
       },
+      isArchived: false
     },
     select: {
       id: true,

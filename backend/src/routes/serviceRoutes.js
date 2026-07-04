@@ -9,7 +9,7 @@ import {
   listMyServices,
   listServices,
   getCategories,
-  deleteServiceListing,
+  updateServiceListing,
 } from "../controllers/serviceController.js";
 import { requireAuth } from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/upload.js";
@@ -20,7 +20,7 @@ router.post("/", requireAuth, upload.array("images", 3), createServiceListing); 
 router.get("/my", requireAuth, listMyServices); // list services for the authenticated vendor
 router.get("/categories", getCategories); // list all categories
 router.get("/:id", getServiceDetails); // fetch public details for a single service
-router.delete("/:id", requireAuth, deleteServiceListing); // delete a service by ID (vendor only)
+router.patch("/:id", requireAuth, updateServiceListing); // update a service by ID to become archieved (vendor only)
 router.get("/", listServices); // list all services for public listing
 
 export default router;

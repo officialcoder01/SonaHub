@@ -62,6 +62,9 @@ export const getVendorProfileByVendorId = async (vendorId) => {
         }
       },
       services: {
+        where: {
+          isArchived: false,
+        },
         include: {
           images: true,
           category: true,

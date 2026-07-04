@@ -2,7 +2,7 @@ import {
   createService,
   getAllServices,
   getVendorServices,
-  deleteService,
+  updateService,
   getAllCategories,
   getServiceDetailsById,
 } from "../services/serviceService.js";
@@ -75,10 +75,10 @@ export const listMyServices = async (req, res) => {
   }
 };
 
-// Delete a service by ID, ensuring the requesting user is the owner vendor
-export const deleteServiceListing = async (req, res) => {
+// Update a service by ID to become archieved, ensuring the requesting user is the owner vendor
+export const updateServiceListing = async (req, res) => {
   try {
-    await deleteService({
+    await updateService({
       serviceId: req.params.id,
       userId: req.user.id,
       role: req.user.role,
