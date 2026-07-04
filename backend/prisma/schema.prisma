@@ -90,6 +90,7 @@ model Service {
   reviews     Review[]
 
   createdAt   DateTime       @default(now())
+  isArchived  Boolean        @default(false)
 }
 
 //////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ model serviceImage {
   url              String
 
   serviceId        String
-  service          Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service          Service    @relation(fields: [serviceId], references: [id])
 
   createdAt        DateTime   @default(now())
 }
@@ -150,12 +151,12 @@ model Booking {
   vendor      VendorProfile @relation("VendorBookings", fields: [vendorId], references: [id])
 
   serviceId   String
-  service     Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service     Service       @relation(fields: [serviceId], references: [id])
 
   status      BookingStatus @default(PENDING)
   message     String?
 
-  review     Review?
+  review      Review?
   messages    Message[]
 }
 
