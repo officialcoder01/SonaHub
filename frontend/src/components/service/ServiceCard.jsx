@@ -29,7 +29,7 @@ export default function ServiceCard({
       : "text-sm font-semibold text-slate-950",
 
     title: featuredLayout
-      ? "mb-2 text-xl leading-[18px] text-slate-950"
+      ? "mb-2 text-sm leading-[18px] text-slate-950"
       : "line-clamp-2 text-lg",
 
     vendor: featuredLayout
