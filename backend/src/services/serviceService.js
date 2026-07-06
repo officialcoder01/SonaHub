@@ -21,12 +21,23 @@ const assertVendor = (role) => {
 
 // Retrieve all categories
 export const getAllCategories = async () => {
-  return prisma.category.findMany({
+  const categories = await prisma.category.findMany({
     include: {
-      services: true
+      services: {
+        where: {
+          isArchived: false,
+        },
+      }
     },
     orderBy: { name: "asc" },
   });
+
+  const serviceCount = categories.map((category) => ({
+    ...category,
+    serviceCount: category.services.length
+  }));
+
+  return serviceCount;
 };
 
 // Service creation logic, including vendor checks and image uploads
