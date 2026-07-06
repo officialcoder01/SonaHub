@@ -11,6 +11,7 @@ const mockPrisma = {
     create: jest.fn(),
   },
   service: {
+    count: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
     findUnique: jest.fn(),
@@ -306,7 +307,201 @@ describe("service routes", () => {
   });
 
   describe("GET /api/services", () => {
-    test("should return all services public", async () => {
+    const services = [
+      {
+        id: "service-1",
+        title: "Photography",
+        images: [{ id: "image-1", url: "https://cdn.example.com/service-1.jpg" }],
+        reviews: [{ rating: 5 }, { rating: 4 }],
+        vendor: {
+          businessName: "Jane Studios",
+          location: "Lagos",
+        },
+      },
+    ];
+
+    const defaultPublicServicesQuery = {
+      where: {
+        isArchived: false,
+      },
+      include: {
+        images: true,
+        category: true,
+        reviews: true,
+        vendor: {
+          select: {
+            businessName: true,
+            location: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: 0,
+      take: 12,
+    };
+
+    beforeEach(() => {
+      mockPrisma.service.count.mockResolvedValue(1);
+      mockPrisma.service.findMany.mockResolvedValue(services);
+    });
+
+    test("should return all services public with default pagination", async () => {
+      const res = await request(app).get("/api/services");
+
+      expect(res.status).toBe(200);
+      expect(res.body.services).toEqual([
+        {
+          ...services[0],
+          reviewStats: {
+            averageRating: 4.5,
+            totalReviews: 2,
+          },
+        },
+      ]);
+      expect(res.body.pagination).toEqual({
+        totalItems: 1,
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: 12,
+      });
+      expect(mockPrisma.service.count).toHaveBeenCalledWith({
+        where: {
+          isArchived: false,
+        },
+      });
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith(defaultPublicServicesQuery);
+    });
+
+    test("should filter services by category", async () => {
+      await request(app).get("/api/services?category=category-1");
+
+      expect(mockPrisma.service.count).toHaveBeenCalledWith({
+        where: {
+          isArchived: false,
+          categoryId: "category-1",
+        },
+      });
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        where: {
+          isArchived: false,
+          categoryId: "category-1",
+        },
+      });
+    });
+
+    test("should search services by title case-insensitively", async () => {
+      await request(app).get("/api/services?search=photography");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        where: {
+          isArchived: false,
+          title: {
+            contains: "photography",
+            mode: "insensitive",
+          },
+        },
+      });
+    });
+
+    test("should filter services by vendor location case-insensitively", async () => {
+      await request(app).get("/api/services?location=Lagos");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        where: {
+          isArchived: false,
+          vendor: {
+            location: {
+              contains: "Lagos",
+              mode: "insensitive",
+            },
+          },
+        },
+      });
+    });
+
+    test("should sort services by newest first", async () => {
+      await request(app).get("/api/services?sort=newest");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        orderBy: { createdAt: "desc" },
+      });
+    });
+
+    test("should sort services by oldest first", async () => {
+      await request(app).get("/api/services?sort=oldest");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        orderBy: { createdAt: "asc" },
+      });
+    });
+
+    test("should return pagination metadata and paginate inside Prisma", async () => {
+      mockPrisma.service.count.mockResolvedValue(72);
+
+      const res = await request(app).get("/api/services?page=2&limit=12");
+
+      expect(res.status).toBe(200);
+      expect(res.body.pagination).toEqual({
+        totalItems: 72,
+        totalPages: 6,
+        currentPage: 2,
+        pageSize: 12,
+      });
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        skip: 12,
+        take: 12,
+      });
+    });
+
+    test("should always exclude archived services", async () => {
+      await request(app).get("/api/services?search=photo&location=lagos&category=category-1");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        where: expect.objectContaining({
+          isArchived: false,
+        }),
+      });
+      expect(mockPrisma.service.count).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          isArchived: false,
+        }),
+      });
+    });
+
+    test("should use default page when page value is invalid", async () => {
+      await request(app).get("/api/services?page=0&limit=5");
+
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        skip: 0,
+        take: 5,
+      });
+    });
+
+    test("should use default limit when limit value is invalid", async () => {
+      const res = await request(app).get("/api/services?page=2&limit=0");
+
+      expect(res.body.pagination).toEqual({
+        totalItems: 1,
+        totalPages: 1,
+        currentPage: 2,
+        pageSize: 12,
+      });
+      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
+        ...defaultPublicServicesQuery,
+        skip: 12,
+        take: 12,
+      });
+    });
+
+    test("should preserve existing public response shape", async () => {
       const services = [
         {
           id: "service-1",
@@ -320,29 +515,15 @@ describe("service routes", () => {
         },
       ];
 
+      mockPrisma.service.count.mockResolvedValue(1);
       mockPrisma.service.findMany.mockResolvedValue(services);
 
       const res = await request(app).get("/api/services");
 
       expect(res.status).toBe(200);
-      expect(res.body).toMatchObject({ services });
-      expect(mockPrisma.service.findMany).toHaveBeenCalledWith({
-        where: {
-          isArchived: false,
-        },
-        include: {
-          images: true,
-          category: true,
-          reviews: true,
-          vendor: {
-            select: {
-              businessName: true,
-              location: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      expect(res.body).toHaveProperty("services");
+      expect(res.body).toHaveProperty("pagination");
+      expect(res.body.services[0]).toMatchObject(services[0]);
     });
   });
 

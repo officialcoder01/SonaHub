@@ -145,26 +145,75 @@ export const updateService = async ({ serviceId, userId, role }) => {
   });
 };
 
-// Retrieve all services with vendor info and images
-// this is for public listing (no authentication required)
-export const getAllServices = async () => {
-  const services = await prisma.service.findMany({
-    where: {
-      isArchived: false,
-    },
-    include: {
-      images: true,
-      category: true,
-      reviews: true,
-      vendor: {
-        select: {
-          businessName: true,
-          location: true,
+// Retrieve paginated public services with vendor info, images, and review stats.
+// Prisma handles filtering and pagination so archived services never leak to users.
+export const getAllServices = async ({
+  category,
+  search,
+  location,
+  sort = "newest",
+  page = 1,
+  limit = 12,
+} = {}) => {
+  const normalizedCategory = typeof category === "string" ? category.trim() : "";
+  const normalizedSearch = typeof search === "string" ? search.trim() : "";
+  const normalizedLocation = typeof location === "string" ? location.trim() : "";
+
+  //////////////////////////////////////////////////
+  // Build one reusable Prisma where clause so the count
+  // and paginated query always represent the same result set.
+  //////////////////////////////////////////////////
+  const where = {
+    isArchived: false,
+  };
+
+  if (normalizedCategory) {
+    where.categoryId = normalizedCategory;
+  }
+
+  if (normalizedSearch) {
+    where.title = {
+      contains: normalizedSearch,
+      mode: "insensitive",
+    };
+  }
+
+  if (normalizedLocation) {
+    where.vendor = {
+      location: {
+        contains: normalizedLocation,
+        mode: "insensitive",
+      },
+    };
+  }
+
+  const pageSize = limit;
+  const currentPage = page;
+  const skip = (currentPage - 1) * pageSize;
+  const orderBy = {
+    createdAt: sort === "oldest" ? "asc" : "desc",
+  };
+
+  const [totalItems, services] = await Promise.all([
+    prisma.service.count({ where }),
+    prisma.service.findMany({
+      where,
+      include: {
+        images: true,
+        category: true,
+        reviews: true,
+        vendor: {
+          select: {
+            businessName: true,
+            location: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy,
+      skip,
+      take: pageSize,
+    }),
+  ]);
 
   const servicesWithReviewStats = services.map((service) => {
     const reviewStats = calculateReviewStats(service.reviews);
@@ -174,7 +223,15 @@ export const getAllServices = async () => {
     };
   });
 
-  return servicesWithReviewStats;
+  return {
+    services: servicesWithReviewStats,
+    pagination: {
+      totalItems,
+      totalPages: Math.ceil(totalItems / pageSize),
+      currentPage,
+      pageSize,
+    },
+  };
 };
 
 // Retrieve a single public service details payload for the Service Details page.

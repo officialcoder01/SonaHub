@@ -31,10 +31,28 @@ export const createServiceListing = async (req, res) => {
 // Retrieve all services for public listing, including vendor info and images
 export const listServices = async (req, res) => {
   try {
-    const services = await getAllServices();
+    const parsedPage = Number.parseInt(req.query.page, 10);
+    const parsedLimit = Number.parseInt(req.query.limit, 10);
+    const sort = req.query.sort === "oldest" ? "oldest" : "newest";
+
+    //////////////////////////////////////////////////
+    // Keep public listing query validation in the controller
+    // before delegating filtering and pagination to the service.
+    //////////////////////////////////////////////////
+    const filters = {
+      category: req.query.category,
+      search: req.query.search,
+      location: req.query.location,
+      sort,
+      page: parsedPage > 0 ? parsedPage : 1,
+      limit: parsedLimit > 0 ? parsedLimit : 12,
+    };
+
+    const { services, pagination } = await getAllServices(filters);
 
     res.status(200).json({
       services,
+      pagination,
     });
   } catch (err) {
     res.status(err.status || 500).json({
