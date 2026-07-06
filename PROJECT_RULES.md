@@ -37,10 +37,8 @@ Creativity is encouraged ONLY within the design system and architecture boundari
 # GENERAL DEVELOPMENT RULES
 
 ## Git Branch Rules
-- Always create a new branch for each feature.
-- Alway check that branch is not on main before making changes
+- Alway check that branch is not on 'main' before making changes
 - Always use `git checkout -b branch-name` to create a new branch if branch is on main
-- Never make any changes if the branch is on main
 
 ## Mobile First
 - Always design mobile-first before desktop.
