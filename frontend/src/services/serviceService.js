@@ -22,8 +22,20 @@ export const getCategories = async () => {
   }
 };
 
-export const getServices = async () => {
-    const response = await fetch(API_URL);
+export const getServices = async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+            queryParams.set(key, String(value));
+        }
+    });
+
+    const requestUrl = queryParams.toString()
+        ? `${API_URL}?${queryParams.toString()}`
+        : API_URL;
+
+    const response = await fetch(requestUrl);
     return handleResponse(response);
 };
 
