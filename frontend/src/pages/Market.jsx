@@ -280,16 +280,12 @@ export default function Market() {
           Marketplace
         </p>
         <h1 className="mt-2">Browse Services</h1>
-        <p className="mt-3 max-w-2xl">
-          Search, filter, and discover trusted artisan services near you.
-        </p>
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <FilterSidebar {...filterProps} />
 
-        <section className="min-w-0 flex-1 space-y-6">
-          <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="min-w-0 flex-1 space-y-4">
             <MarketplaceSearch
               value={visibleSearch}
               onChange={setSearchInput}
@@ -301,7 +297,6 @@ export default function Market() {
               onClose={() => setIsMobileFilterOpen(false)}
               {...filterProps}
             />
-          </div>
 
           {isLoading ? (
             <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
