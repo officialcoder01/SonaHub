@@ -1,13 +1,15 @@
 export default function MarketplaceFilter({
   categories = [],
-  locations = [],
+  states = [],
+  lgas = [],
   values,
   onChange,
   onClear,
   idPrefix = "market",
 }) {
   const categoryId = `${idPrefix}-category`;
-  const locationId = `${idPrefix}-location`;
+  const stateId = `${idPrefix}-state`;
+  const lgaId = `${idPrefix}-lga`;
   const sortId = `${idPrefix}-sort`;
 
   return (
@@ -32,19 +34,41 @@ export default function MarketplaceFilter({
       </div>
 
       <div className="form-field">
-        <label className="form-label" htmlFor={locationId}>
-          Location
+        <label className="form-label" htmlFor={stateId}>
+          State
         </label>
         <select
-          id={locationId}
+          id={stateId}
           className="form-input"
-          value={values.location}
-          onChange={(event) => onChange("location", event.target.value)}
+          value={values.state}
+          onChange={(event) => onChange("state", event.target.value)}
         >
-          <option value="">All Locations</option>
-          {locations.map((location) => (
-            <option key={location} value={location}>
-              {location}
+          <option value="">All States</option>
+          {states.map((state) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="form-field">
+        <label className="form-label" htmlFor={lgaId}>
+          Local Government Area
+        </label>
+        <select
+          id={lgaId}
+          className="form-input"
+          value={values.lga}
+          onChange={(event) => onChange("lga", event.target.value)}
+          disabled={!values.state}
+        >
+          <option value="">
+            {values.state ? "All LGAs" : "Select a state first"}
+          </option>
+          {lgas.map((lga) => (
+            <option key={lga} value={lga}>
+              {lga}
             </option>
           ))}
         </select>
