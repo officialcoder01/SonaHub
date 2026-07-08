@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import naijaStateLocalGovernment from "naija-state-local-government";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import FilterSidebar from "../components/market/FilterSidebar";
 import MarketplacePagination from "../components/market/MarketplacePagination";
@@ -11,6 +12,7 @@ import { getCategories, getServices } from "../services/serviceService";
 
 const SERVICES_PER_PAGE = 12;
 const SEARCH_DEBOUNCE_MS = 400;
+const stateOptions = naijaStateLocalGovernment.states();
 
 const parsePositivePage = (value) => {
   const parsedValue = Number.parseInt(value, 10);
@@ -28,7 +30,6 @@ export default function Market() {
     pageSize: SERVICES_PER_PAGE,
   });
   const [categories, setCategories] = useState([]);
-  const [locations, setLocations] = useState([]);
   const [searchInput, setSearchInput] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -41,13 +42,25 @@ export default function Market() {
     return {
       search: params.get("search") || "",
       category: params.get("category") || "",
-      location: params.get("location") || "",
+      state: params.get("state") || "",
+      lga: params.get("lga") || "",
       sort: params.get("sort") === "oldest" ? "oldest" : "newest",
       page: parsePositivePage(params.get("page")),
     };
   }, [queryString]);
 
   const visibleSearch = searchInput ?? filters.search;
+  const selectedStateLgas = useMemo(
+    () => (filters.state ? naijaStateLocalGovernment.lgas(filters.state).lgas : []),
+    [filters.state],
+  );
+  const locationFilter = useMemo(() => {
+    if (filters.lga && filters.state) {
+      return `${filters.lga}, ${filters.state}`;
+    }
+
+    return filters.state;
+  }, [filters.lga, filters.state]);
 
   const updateQueryParams = useCallback(
     (updates, { resetPage = true } = {}) => {
@@ -108,29 +121,16 @@ export default function Market() {
 
     const loadFilterData = async () => {
       try {
-        const [categoriesResponse, locationsResponse] = await Promise.all([
-          getCategories(),
-          getServices({ page: 1, limit: 1000 }),
-        ]);
+        const categoriesResponse = await getCategories();
 
         if (!isActive) {
           return;
         }
 
-        const locationOptions = Array.from(
-          new Set(
-            (locationsResponse.services || [])
-              .map((service) => service?.vendor?.location || service?.location)
-              .filter(Boolean),
-          ),
-        ).sort((first, second) => first.localeCompare(second));
-
         setCategories(categoriesResponse?.categories || []);
-        setLocations(locationOptions);
       } catch {
         if (isActive) {
           setCategories([]);
-          setLocations([]);
         }
       }
     };
@@ -150,7 +150,7 @@ export default function Market() {
       const response = await getServices({
         search: filters.search,
         category: filters.category,
-        location: filters.location,
+        location: locationFilter,
         sort: filters.sort,
         page: filters.page,
         limit: SERVICES_PER_PAGE,
@@ -172,7 +172,7 @@ export default function Market() {
     }
   }, [
     filters.category,
-    filters.location,
+    locationFilter,
     filters.page,
     filters.search,
     filters.sort,
@@ -189,7 +189,7 @@ export default function Market() {
         const response = await getServices({
           search: filters.search,
           category: filters.category,
-          location: filters.location,
+          location: locationFilter,
           sort: filters.sort,
           page: filters.page,
           limit: SERVICES_PER_PAGE,
@@ -224,19 +224,25 @@ export default function Market() {
     return () => {
       isActive = false;
     };
-  }, [filters]);
+  }, [filters, locationFilter]);
 
   const filterValues = useMemo(
     () => ({
       category: filters.category,
-      location: filters.location,
+      state: filters.state,
+      lga: filters.lga,
       sort: filters.sort,
     }),
-    [filters.category, filters.location, filters.sort],
+    [filters.category, filters.lga, filters.sort, filters.state],
   );
 
   const handleFilterChange = useCallback(
     (key, value) => {
+      if (key === "state") {
+        updateQueryParams({ state: value, lga: "" }, { resetPage: true });
+        return;
+      }
+
       updateQueryParams({ [key]: value }, { resetPage: true });
     },
     [updateQueryParams],
@@ -267,7 +273,8 @@ export default function Market() {
 
   const filterProps = {
     categories,
-    locations,
+    states: stateOptions,
+    lgas: selectedStateLgas,
     values: filterValues,
     onChange: handleFilterChange,
     onClear: clearFilters,
