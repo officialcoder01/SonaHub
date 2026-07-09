@@ -89,6 +89,9 @@ describe("vendorService", () => {
       id: "profile-1",
       userId: "user-1",
       businessName: "Jane Events",
+      services: [],
+      bookings: [],
+      reviews: [],
     };
 
     mockPrisma.vendorProfile.findUnique.mockResolvedValue(profile);
@@ -97,16 +100,36 @@ describe("vendorService", () => {
 
     expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
       where: { userId: "user-1" },
+      include: {
+        bookings: true,
+        reviews: true,
+        services: {
+          where: {
+            isArchived: false,
+          }
+        },
+      },
     });
-    expect(result).toEqual(profile);
+    expect(result).toMatchObject(profile);
   });
 
-  test("should return null if not created", async () => {
+  test("should return 404 if not created", async () => {
     mockPrisma.vendorProfile.findUnique.mockResolvedValue(null);
 
-    const result = await getVendorProfileByUserId("user-1", "VENDOR");
+    await expect(getVendorProfileByUserId("user-1", "VENDOR")).rejects.toThrow("Vendor not found");
 
-    expect(result).toBeNull();
+    expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
+      where: { userId: "user-1" },
+      include: {
+        bookings: true,
+        reviews: true,
+        services: {
+          where: {
+            isArchived: false,
+          }
+        }
+      }
+    });
   });
 
   test("should return all vendors", async () => {
