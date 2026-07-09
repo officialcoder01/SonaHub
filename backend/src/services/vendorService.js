@@ -46,9 +46,44 @@ export const createVendorProfile = async ({
 export const getVendorProfileByUserId = async (userId, role) => {
   assertVendor(role);
 
-  return prisma.vendorProfile.findUnique({
+  const vendor = await prisma.vendorProfile.findUnique({
     where: { userId },
+    include: {
+      services: {
+        where: {
+          isArchived: false,
+        }
+      },
+      bookings: true,
+      reviews: true,
+    }
   });
+
+  if (!vendor) {
+    const error = new Error("Vendor not found");
+    error.status = 404;
+    throw error;
+  }
+
+  const { services, bookings, reviews } = vendor;
+
+  const servicesCount = services.length;
+  const totalBookingsCount = bookings.length;
+  const completedBookingsCount = bookings.filter((booking) => booking.status === "COMPLETED").length;
+  const pendingBookingsCount = bookings.filter(
+    (booking) => booking.status === "PENDING"
+  ).length;
+  
+  const vendorReviewStat = calculateReviewStats(reviews);
+
+  return {
+    ...vendor,
+    servicesCount,
+    totalBookingsCount,
+    completedBookingsCount,
+    pendingBookingsCount,
+    reviewStats: vendorReviewStat
+  }
 };
 
 // Retrive vendor profile by vendor ID for public vendor profile page

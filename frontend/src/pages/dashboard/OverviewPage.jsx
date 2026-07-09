@@ -14,30 +14,12 @@ import BookingStatusBadge from "../../components/dashboard/BookingStatusBadge";
 import VendorProfileForm from "../../components/dashboard/VendorProfileForm";
 import { useAuth } from "../../context/AuthContext";
 import { getVendorBookings } from "../../services/bookingService";
-import { getMyServices } from "../../services/serviceService";
 import { getMyProfile } from "../../services/vendorService";
-
-const safeCount = (items, predicate) => items.filter(predicate).length;
-
-const getAverageRating = (services) => {
-  const ratings = services
-    .flatMap((service) => service.reviews || [])
-    .map((review) => Number(review.rating))
-    .filter((rating) => Number.isFinite(rating));
-
-  if (ratings.length === 0) {
-    return "N/A";
-  }
-
-  const total = ratings.reduce((sum, rating) => sum + rating, 0);
-  return (total / ratings.length).toFixed(1);
-};
 
 export default function OverviewPage() {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [services, setServices] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,14 +34,12 @@ export default function OverviewPage() {
 
     try {
       // Dashboard state is loaded together so the stat cards settle at the same time.
-      const [profileResult, servicesResult, bookingsResult] = await Promise.all([
+      const [profileResult, bookingsResult] = await Promise.all([
         getMyProfile(token),
-        getMyServices(token),
         getVendorBookings(token).catch(() => ({ bookings: [] })),
       ]);
 
       setProfile(profileResult);
-      setServices(servicesResult.services || []);
       setBookings(bookingsResult.bookings || []);
     } catch (err) {
       setError(err.message || "Unable to load dashboard overview");
@@ -80,13 +60,11 @@ export default function OverviewPage() {
     // Protect state updates if the vendor leaves the dashboard mid-request.
     Promise.all([
       getMyProfile(token),
-      getMyServices(token),
       getVendorBookings(token).catch(() => ({ bookings: [] })),
     ])
-      .then(([profileResult, servicesResult, bookingsResult]) => {
+      .then(([profileResult, bookingsResult]) => {
         if (isActive) {
           setProfile(profileResult);
-          setServices(servicesResult.services || []);
           setBookings(bookingsResult.bookings || []);
           setError("");
         }
@@ -111,36 +89,35 @@ export default function OverviewPage() {
     () => [
       {
         label: "Total Services",
-        value: services.length,
+        value: profile?.servicesCount,
         tone: "blue",
         icon: BriefcaseBusiness,
       },
       {
         label: "Total Bookings",
-        value: bookings.length,
+        value: profile?.totalBookingsCount,
         tone: "green",
         icon: CalendarCheck,
       },
       {
         label: "Pending Requests",
-        value: safeCount(bookings, (booking) => booking.status === "PENDING"),
+        value: profile?.pendingBookingsCount,
         tone: "amber",
         icon: Clock3,
       },
       {
         label: "Completed Jobs",
-        value: safeCount(bookings, (booking) => booking.status === "COMPLETED"),
+        value: profile?.completedBookingsCount,
         tone: "violet",
         icon: CheckCircle2,
       },
       {
         label: "Average Rating",
-        value: getAverageRating(services),
+        value: `${profile?.reviewStats.averageRating || "N/A"}${profile?.reviewStats.totalReviews > 0 ? ` (${profile.reviewStats.totalReviews})` : ""}`,
         tone: "slate",
         icon: Star,
       },
     ],
-    [bookings, services],
   );
 
   const recentBookings = bookings.slice(0, 4);
