@@ -46,17 +46,21 @@ export const createVendorProfile = async ({
 export const getVendorProfileByUserId = async (userId, role) => {
   assertVendor(role);
 
+  // 1. Fetch vendor data and basic counts directly from DB
   const vendor = await prisma.vendorProfile.findUnique({
     where: { userId },
     include: {
       services: {
-        where: {
-          isArchived: false,
-        }
+        where: { isArchived: false },
       },
-      bookings: true,
-      reviews: true,
-    }
+      reviews: true, // Kept to calculate vendorReviewStat metrics
+      _count: {
+        select: {
+          services: { where: { isArchived: false } },
+          bookings: true,
+        },
+      },
+    },
   });
 
   if (!vendor) {
@@ -65,25 +69,33 @@ export const getVendorProfileByUserId = async (userId, role) => {
     throw error;
   }
 
-  const { services, bookings, reviews } = vendor;
+  // 2. Fetch specific booking status counts efficiently in parallel
+  const statusCounts = await prisma.booking.groupBy({
+    by: ["status"],
+    where: { vendorId: vendor.id, status: { in: ["COMPLETED", "PENDING"] } },
+    _count: { status: true },
+  });
 
-  const servicesCount = services.length;
-  const totalBookingsCount = bookings.length;
-  const completedBookingsCount = bookings.filter((booking) => booking.status === "COMPLETED").length;
-  const pendingBookingsCount = bookings.filter(
-    (booking) => booking.status === "PENDING"
-  ).length;
-  
+  // 3. Map the database aggregation results array into a clean key-value object
+  const countsMap = statusCounts.reduce((acc, curr) => {
+    acc[curr.status] = curr._count.status;
+    return acc;
+  }, { COMPLETED: 0, PENDING: 0 });
+
+  // 4. Extract data and compute review statistics
+  const { _count, reviews, ...vendorData } = vendor;
   const vendorReviewStat = calculateReviewStats(reviews);
 
+  // 5. Return clean structured payload without data bloat
   return {
-    ...vendor,
-    servicesCount,
-    totalBookingsCount,
-    completedBookingsCount,
-    pendingBookingsCount,
-    reviewStats: vendorReviewStat
-  }
+    ...vendorData,
+    reviews,
+    servicesCount: _count.services,
+    totalBookingsCount: _count.bookings,
+    completedBookingsCount: countsMap.COMPLETED,
+    pendingBookingsCount: countsMap.PENDING,
+    reviewStats: vendorReviewStat,
+  };
 };
 
 // Retrive vendor profile by vendor ID for public vendor profile page
