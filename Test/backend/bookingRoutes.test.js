@@ -13,6 +13,7 @@ const mockPrisma = {
     findUnique: jest.fn(),
     findMany: jest.fn(),
     update: jest.fn(),
+    groupBy: jest.fn(),
   },
 };
 
@@ -171,13 +172,23 @@ describe("booking routes", () => {
       ];
       mockPrisma.vendorProfile.findUnique.mockResolvedValue({ id: "vendor-1" });
       mockPrisma.booking.findMany.mockResolvedValue(bookings);
+      mockPrisma.booking.groupBy.mockResolvedValue([{ status: "PENDING", _count: { status: 1 } }]);
 
       const res = await request(app)
         .get("/api/vendor/bookings")
         .set("Authorization", vendorAuth);
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ bookings });
+      expect(res.body).toEqual({
+        bookings,
+        statusCounts: {
+          pending: 1,
+          accepted: 0,
+          completed: 0,
+          rejected: 0,
+          cancelled: 0,
+        },
+      });
       expect(mockPrisma.booking.findMany).toHaveBeenCalledWith({
         where: { vendorId: "vendor-1" },
         include: {

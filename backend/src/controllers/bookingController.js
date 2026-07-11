@@ -44,12 +44,15 @@ export const listMyBookings = async (req, res) => {
 
 export const listVendorBookings = async (req, res) => {
   try {
-    const bookings = await getVendorBookings({
+    const result = await getVendorBookings({
       userId: req.user.id,
       role: req.user.role,
     });
 
-    res.status(200).json({ bookings });
+    res.status(200).json({
+      bookings: result.bookings,
+      statusCounts: result.statusCounts,
+    });
   } catch (err) {
     sendError(res, err, "Unable to fetch vendor bookings");
   }

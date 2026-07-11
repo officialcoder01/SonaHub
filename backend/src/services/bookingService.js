@@ -135,14 +135,38 @@ export const getVendorBookings = async ({ userId, role }) => {
   // Vendor profile ownership maps the logged-in user to assigned bookings.
   const vendorProfile = await getVendorProfile(userId, role);
 
-  return prisma.booking.findMany({
-    where: { vendorId: vendorProfile.id },
-    include: {
-      customer: true,
-      service: true,
+  const [bookings, statusCounts] = await Promise.all([
+    prisma.booking.findMany({
+      where: { vendorId: vendorProfile.id },
+      include: {
+        service: true,
+        customer: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.booking.groupBy({
+      by: ["status"],
+      where: { vendorId: vendorProfile.id },
+      _count: { status: true },
+    }),
+  ]);
+
+  // Convert the array of status counts into an object for easier consumption by the frontend.
+  const counts = statusCounts.reduce((acc, curr) => {
+    acc[curr.status] = curr._count.status;
+    return acc;
+  }, {});
+
+  return {
+    bookings,
+    statusCounts: {
+      pending: counts.PENDING || 0,
+      accepted: counts.ACCEPTED || 0,
+      completed: counts.COMPLETED || 0,
+      rejected: counts.REJECTED || 0,
+      cancelled: counts.CANCELLED || 0,
     },
-    orderBy: { createdAt: "desc" },
-  });
+  };
 };
 
 export const acceptBooking = async ({ userId, role, bookingId }) => {

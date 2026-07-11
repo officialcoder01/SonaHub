@@ -14,6 +14,27 @@ import {
 } from "../../services/bookingService";
 
 const STATUSES = ["ALL", "PENDING", "ACCEPTED", "REJECTED", "COMPLETED", "CANCELLED"];
+const EMPTY_STATUS_COUNTS = {
+  pending: 0,
+  accepted: 0,
+  completed: 0,
+  rejected: 0,
+  cancelled: 0,
+};
+
+const normalizeBookingsResponse = (response) => {
+  const payload = response && typeof response === "object" ? response : {};
+  const bookings = Array.isArray(payload.bookings)
+    ? payload.bookings
+    : Array.isArray(payload)
+      ? payload
+      : [];
+  const statusCounts = payload.statusCounts && typeof payload.statusCounts === "object"
+    ? payload.statusCounts
+    : EMPTY_STATUS_COUNTS;
+
+  return { bookings, statusCounts };
+};
 
 function BookingActions({ booking, onAction, activeActionId }) {
   const isWorking = activeActionId === booking.id;
@@ -60,6 +81,7 @@ function BookingActions({ booking, onAction, activeActionId }) {
 export default function BookingsPage() {
   const { token } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [statusCounts, setStatusCounts] = useState(EMPTY_STATUS_COUNTS);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,9 +97,11 @@ export default function BookingsPage() {
     setError("");
 
     try {
-      // Booking data comes from the existing vendor booking API and keeps its status contract.
+      // Booking data and status counts come from the vendor booking API.
       const response = await getVendorBookings(token);
-      setBookings(response.bookings || []);
+      const { bookings: nextBookings, statusCounts: nextStatusCounts } = normalizeBookingsResponse(response);
+      setBookings(nextBookings);
+      setStatusCounts(nextStatusCounts);
     } catch (err) {
       setError(err.message || "Unable to load bookings");
     } finally {
@@ -97,7 +121,9 @@ export default function BookingsPage() {
     getVendorBookings(token)
       .then((response) => {
         if (isActive) {
-          setBookings(response.bookings || []);
+          const { bookings: nextBookings, statusCounts: nextStatusCounts } = normalizeBookingsResponse(response);
+          setBookings(nextBookings);
+          setStatusCounts(nextStatusCounts);
           setError("");
         }
       })
@@ -117,23 +143,42 @@ export default function BookingsPage() {
     };
   }, [token]);
 
+  const normalizedBookings = useMemo(() => (Array.isArray(bookings) ? bookings : []), [bookings]);
+
   const filteredBookings = useMemo(() => {
     if (statusFilter === "ALL") {
-      return bookings;
+      return normalizedBookings;
     }
 
-    return bookings.filter((booking) => booking.status === statusFilter);
-  }, [bookings, statusFilter]);
+    return normalizedBookings.filter((booking) => booking.status === statusFilter);
+  }, [normalizedBookings, statusFilter]);
 
-  const statusCounts = useMemo(
-    () => ({
-      PENDING: bookings.filter((booking) => booking.status === "PENDING").length,
-      ACCEPTED: bookings.filter((booking) => booking.status === "ACCEPTED").length,
-      COMPLETED: bookings.filter((booking) => booking.status === "COMPLETED").length,
-      CANCELLED: bookings.filter((booking) => booking.status === "CANCELLED").length,
-    }),
-    [bookings],
-  );
+  const statusCountCards = [
+    {
+      label: "PENDING",
+      value: statusCounts.pending,
+      tone: "amber",
+      icon: Clock3,
+    },
+    {
+      label: "ACCEPTED",
+      value: statusCounts.accepted,
+      tone: "blue",
+      icon: CalendarCheck,
+    },
+    {
+      label: "COMPLETED",
+      value: statusCounts.completed,
+      tone: "green",
+      icon: CheckCircle2,
+    },
+    {
+      label: "CANCELLED",
+      value: statusCounts.cancelled,
+      tone: "slate",
+      icon: XCircle,
+    },
+  ];
 
   const handleBookingAction = async (booking, action) => {
     setActiveActionId(booking.id);
@@ -148,13 +193,20 @@ export default function BookingsPage() {
       const response = await actionMap[action](booking.id, token);
       const updatedBooking = response.booking || response;
 
-      setBookings((currentBookings) =>
-        currentBookings.map((currentBooking) =>
+      setBookings((currentBookings) => {
+        const safeBookings = Array.isArray(currentBookings) ? currentBookings : [];
+
+        return safeBookings.map((currentBooking) =>
           currentBooking.id === booking.id
             ? { ...currentBooking, ...updatedBooking }
             : currentBooking,
-        ),
-      );
+        );
+      });
+
+      const refreshedResponse = await getVendorBookings(token);
+      const { bookings: nextBookings, statusCounts: nextStatusCounts } = normalizeBookingsResponse(refreshedResponse);
+      setBookings(nextBookings);
+      setStatusCounts(nextStatusCounts);
     } catch (err) {
       setActionError(err.message || "Unable to update booking");
     } finally {
@@ -175,10 +227,9 @@ export default function BookingsPage() {
       </div>
 
       <div className="grid gap-4 grid-cols-2 xl:grid-cols-4">
-        <DashboardStatCard label="Pending" value={statusCounts.PENDING} tone="amber" icon={Clock3} />
-        <DashboardStatCard label="Accepted" value={statusCounts.ACCEPTED} tone="blue" icon={CalendarCheck} />
-        <DashboardStatCard label="Completed" value={statusCounts.COMPLETED} tone="green" icon={CheckCircle2} />
-        <DashboardStatCard label="Cancelled" value={statusCounts.CANCELLED} tone="slate" icon={XCircle} />
+        {statusCountCards.map((count) => (
+          <DashboardStatCard key={count.label} {...count} />
+        ))}
       </div>
 
       {isLoading ? <BookingTableSkeleton /> : null}
