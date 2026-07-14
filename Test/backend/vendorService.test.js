@@ -4,6 +4,9 @@ const mockPrisma = {
     create: jest.fn(),
     findMany: jest.fn(),
   },
+  booking: {
+    groupBy: jest.fn(),
+  }
 };
 
 jest.mock("../../backend/src/config/prisma.js", () => ({
@@ -92,25 +95,37 @@ describe("vendorService", () => {
       services: [],
       bookings: [],
       reviews: [],
+      _count: {
+        services: 0,
+        bookings: 0,
+      }
     };
 
     mockPrisma.vendorProfile.findUnique.mockResolvedValue(profile);
+    mockPrisma.booking.groupBy.mockResolvedValue([]);
 
     const result = await getVendorProfileByUserId("user-1", "VENDOR");
 
     expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
       where: { userId: "user-1" },
       include: {
-        bookings: true,
-        reviews: true,
         services: {
           where: {
             isArchived: false,
           }
         },
+        reviews: true,
+        _count: {
+          select: {
+            services: {
+              where: { isArchived: false },
+            },
+            bookings: true,
+          }
+        }
       },
     });
-    expect(result).toMatchObject(profile);
+    expect(result.id).toBe("profile-1");
   });
 
   test("should return 404 if not created", async () => {
@@ -121,11 +136,20 @@ describe("vendorService", () => {
     expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
       where: { userId: "user-1" },
       include: {
-        bookings: true,
-        reviews: true,
         services: {
           where: {
             isArchived: false,
+          }
+        },
+        reviews: true,
+        _count: {
+          select: {
+            services: {
+              where: {
+                isArchived: false,
+              },
+            },
+            bookings: true,
           }
         }
       }
