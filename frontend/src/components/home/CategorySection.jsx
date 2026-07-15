@@ -90,24 +90,29 @@ export default function CategorySection({ categories = [], isLoading, error }) {
             const Icon = categoryIcons[index % categoryIcons.length];
 
             return (
-              <motion.button
-                key={category.id || category.name}
-                type="button"
+              <motion.div
+                key={category.id}
                 variants={cardVariants}
-                className="group flex h-[78px] items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700 transition group-hover:bg-blue-600 group-hover:text-white">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-slate-950">
-                    {category.name}
+                <Link
+                  to={`/market?category=${category.id}`}
+                  className="group flex h-[78px] items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-white hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700 transition group-hover:bg-blue-600 group-hover:text-white">
+                    <Icon className="h-5 w-5" />
                   </span>
-                  <span className="mt-1 block text-xs font-medium text-slate-500">
-                    {getServiceCount(category)}
+
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-slate-950">
+                      {category.name}
+                    </span>
+
+                    <span className="mt-1 block text-xs font-medium text-slate-500">
+                      {getServiceCount(category)}
+                    </span>
                   </span>
-                </span>
-              </motion.button>
+                </Link>
+              </motion.div>
             );
           })}
         </motion.div>

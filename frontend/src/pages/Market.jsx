@@ -50,6 +50,14 @@ export default function Market() {
   }, [queryString]);
 
   const visibleSearch = searchInput ?? filters.search;
+
+  const selectedCategory = useMemo(() => {
+    if (!filters.category) {
+      return null;
+    }
+    return categories.find((cat) => cat.id === filters.category) || null;
+  }, [filters.category, categories]);
+
   const selectedStateLgas = useMemo(
     () => (filters.state ? naijaStateLocalGovernment.lgas(filters.state).lgas : []),
     [filters.state],
@@ -286,7 +294,15 @@ export default function Market() {
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
           Marketplace
         </p>
-        <h1 className="mt-2">Browse Services</h1>
+        <h1 className="mt-2">
+          {selectedCategory ? (
+            <>
+              {selectedCategory.name} Services
+            </>
+          ) : (
+            "Browse Services"
+          )}
+        </h1>
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
