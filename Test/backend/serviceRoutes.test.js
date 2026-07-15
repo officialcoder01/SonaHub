@@ -733,7 +733,9 @@ describe("service routes", () => {
                 name: true,
               },
             },
-            reviews: true,
+            reviews: {
+              select: { rating: true },
+            },
           },
         },
         reviews: {
@@ -768,7 +770,9 @@ describe("service routes", () => {
             name: true,
           },
         },
-        reviews: true,
+        reviews: {
+          select: { rating: true },
+        },
         vendor: {
           select: {
             businessName: true,
@@ -776,7 +780,7 @@ describe("service routes", () => {
           },
         },
       },
-      take: 4,
+      take: 8,
       orderBy: { createdAt: "desc" },
     };
 

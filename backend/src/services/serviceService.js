@@ -251,7 +251,9 @@ export const getServiceDetailsById = async (serviceId) => {
               name: true,
             },
           },
-          reviews: true
+          reviews: {
+            select: { rating: true }
+          }
         },
       },
       reviews: {
@@ -292,7 +294,9 @@ export const getServiceDetailsById = async (serviceId) => {
           name: true,
         },
       },
-      reviews: true,
+      reviews: {
+        select: { rating: true },
+      },
       vendor: {
         select: {
           businessName: true,
@@ -300,7 +304,7 @@ export const getServiceDetailsById = async (serviceId) => {
         },
       },
     },
-    take: 4,
+    take: 8,
     orderBy: { createdAt: "desc" },
   });
 
