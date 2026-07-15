@@ -34,7 +34,7 @@ export default function RelatedServices({ services = [] }) {
       </div>
 
       <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4">
-        {services.slice(0, 4).map((service) => (
+        {services.map((service) => (
           <div key={service.id} className="w-72 shrink-0 sm:w-auto">
             <ServiceCard service={service} actions={actions} dense />
           </div>
