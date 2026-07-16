@@ -168,10 +168,6 @@ export default function BookingDetailsModal({ isOpen, onClose, booking, onReview
             Conditional rendering:
               - hasReview  → ReviewDisplay (read-only, permanent)
               - !hasReview → ReviewForm   (interactive, one-time submission)
-
-            The "Your Booking Message" section that previously appeared here
-            has been intentionally removed — it is no longer useful after the
-            booking workflow has completed, and the review experience replaces it.
             ────────────────────────────────────────────────────────────────
           */}
           {isCompleted && (
