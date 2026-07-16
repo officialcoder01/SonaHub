@@ -13,6 +13,18 @@ const getInitials = (name = "") =>
     .join("")
     .toUpperCase() || "AM";
 
+const renderStar = (rating) => {
+  const rounded = Math.round(Number(rating) || 0);
+  return (
+    <span 
+      class={rounded > 0 ? "text-amber-400" : "text-slate-400"}
+      aria-hidden="true"
+    >
+      <Star className="h-4 w-4 fill-current" />
+    </span>
+  )
+}
+
 export default function VendorHeader({ vendor }) {
   const businessName = vendor?.businessName || "Artisan Vendor";
   const userName = vendor?.user?.name || "";
@@ -66,10 +78,7 @@ export default function VendorHeader({ vendor }) {
           {/* Rating summary */}
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <span className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-800">
-              <Star
-                className="h-4 w-4 fill-amber-400 text-amber-400"
-                aria-hidden="true"
-              />
+              {renderStar(averageRating)}
               {ratingDisplay}
               <span className="font-normal text-slate-500">
                 ({totalReviews} {totalReviews === 1 ? "review" : "reviews"})
