@@ -81,10 +81,7 @@ export default function ReviewsSection({ reviews = [], reviewStats }) {
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
             Customer Reviews
-          </p>
-          <h2 className="mt-1 text-xl font-bold text-slate-950">
-            What customers are saying
-          </h2>
+          </p>         
         </div>
 
         {/* Rating summary badge */}
