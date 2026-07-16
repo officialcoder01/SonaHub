@@ -157,10 +157,6 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
                   >
                     View Profile
                   </button>
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-700">
-                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
-                    {rating}
-                  </span>
                 </div>
               </motion.article>
             );
