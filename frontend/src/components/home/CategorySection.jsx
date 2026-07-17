@@ -40,8 +40,6 @@ const categoryIcons = [
 
 const getServiceCount = (category) => {
   const count =
-    category.serviceCount ||
-    category.servicesCount ||
     category._count?.services ||
     category.services?.length ||
     0;
