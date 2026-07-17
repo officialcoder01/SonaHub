@@ -120,8 +120,10 @@ export default function ServiceCard({
           </p>
 
           <div className="flex items-center gap-1 text-sm text-gray-500 mb-2">
-            <MapPin className="w-4 h-4" />
-            {service?.vendor?.location || service?.location || "Location unavailable"}
+            <MapPin className="w-4 h-4 shrink-0" />
+            <span className="truncate">
+              {service?.vendor?.location || service?.location || "Location unavailable"}
+            </span>
           </div>
         </div>
 
