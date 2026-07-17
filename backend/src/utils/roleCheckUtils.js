@@ -6,3 +6,11 @@ export const assertVendor = (role, message) => {
     throw error;
   }
 };
+
+export const assertCustomer = (role, message) => {
+  if (role !== "CUSTOMER") {
+    const error = new Error(message);
+    error.status = 403;
+    throw error;
+  }
+};
