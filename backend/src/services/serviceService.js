@@ -9,15 +9,7 @@ import prisma from "../config/prisma.js";
 import { calculateReviewStats } from "../utils/ratingUtils.js";
 import { uploadServiceImages } from "../utils/imageUploadUtils.js";
 import { validateServiceFields } from "../validators/serviceDetailFieldValidator.js";
-
-// Helper function to ensure only vendors can create or view services
-const assertVendor = (role) => {
-  if (role !== "VENDOR") {
-    const error = new Error("Only vendors can access services");
-    error.status = 403;
-    throw error;
-  }
-};
+import { assertVendor } from "../utils/roleCheckUtils.js";
 
 // Retrieve all categories
 export const getAllCategories = async () => {
@@ -39,7 +31,7 @@ export const getAllCategories = async () => {
 
 // Service creation logic, including vendor checks and image uploads
 export const createService = async ({ userId, role, data, files = [] }) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can create services");
 
   const price = validateServiceFields(data);
 
@@ -79,7 +71,7 @@ export const createService = async ({ userId, role, data, files = [] }) => {
 // Retrieve all services with vendor info and images
 // this is for authenticated vendors only (private endpoint)
 export const getVendorServices = async ({ userId, role }) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can view their services");
 
   const vendorProfile = await prisma.vendorProfile.findUnique({
     where: { userId },
@@ -113,7 +105,7 @@ export const getVendorServices = async ({ userId, role }) => {
 // Update service to archieved because deleting the service
 // will delete the booking record and reviews
 export const updateService = async ({ serviceId, userId, role }) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can update their services");
 
   const service = await prisma.service.findUnique({
     where: { id: serviceId, isArchived: false },

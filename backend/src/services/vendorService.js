@@ -1,15 +1,6 @@
 import prisma from "../config/prisma.js";
 import { calculateReviewStats } from "../utils/ratingUtils.js";
-
-// Helper function to ensure only vendors 
-// can create or view vendor profiles
-const assertVendor = (role) => {
-  if (role !== "VENDOR") {
-    const error = new Error("Only vendors can access vendor profiles");
-    error.status = 403;
-    throw error;
-  }
-};
+import { assertVendor } from "../utils/roleCheckUtils.js";
 
 // Create a vendor profile for 
 // the authenticated user (private endpoint for vendors only)
@@ -20,7 +11,7 @@ export const createVendorProfile = async ({
   bio,
   location,
 }) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can create a vendor profile");
 
   const existingProfile = await prisma.vendorProfile.findUnique({
     where: { userId },
@@ -44,7 +35,7 @@ export const createVendorProfile = async ({
 
 // Retrieve vendor profile by user ID (private endpoint for vendors only)
 export const getVendorProfileByUserId = async (userId, role) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can access their vendor profile");
 
   // 1. Fetch vendor data and basic counts directly from DB
   const vendor = await prisma.vendorProfile.findUnique({

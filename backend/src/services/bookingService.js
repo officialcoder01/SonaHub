@@ -1,20 +1,5 @@
 import prisma from "../config/prisma.js";
-
-const assertCustomer = (role, message = "Only customers can access bookings") => {
-  if (role !== "CUSTOMER") {
-    const error = new Error(message);
-    error.status = 403;
-    throw error;
-  }
-};
-
-const assertVendor = (role) => {
-  if (role !== "VENDOR") {
-    const error = new Error("Only vendors can manage bookings");
-    error.status = 403;
-    throw error;
-  }
-};
+import { assertCustomer, assertVendor } from "../utils/roleCheckUtils.js";
 
 const notFound = () => {
   const error = new Error("Booking not found");
@@ -23,7 +8,7 @@ const notFound = () => {
 };
 
 const getVendorProfile = async (userId, role) => {
-  assertVendor(role);
+  assertVendor(role, "Only vendors can manage their bookings");
 
   const vendorProfile = await prisma.vendorProfile.findUnique({
     where: { userId },
@@ -112,7 +97,7 @@ export const createBooking = async ({ userId, role, serviceId, message }) => {
 
 export const getCustomerBookings = async ({ userId, role }) => {
   // Customers can only view bookings they created.
-  assertCustomer(role);
+  assertCustomer(role, "Only authenticated customer can access their bookings");
 
   return prisma.booking.findMany({
     where: { customerId: userId },
