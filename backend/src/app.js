@@ -7,6 +7,7 @@ import vendorRoutes from "./routes/vendorRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import vendorBookingRoutes from "./routes/vendorBookingRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import recommendationRoutes from "./routes/recommendationRoute.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -36,6 +37,7 @@ app.use("/api/vendors", vendorRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/vendor/bookings", vendorBookingRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
