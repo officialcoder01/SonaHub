@@ -64,7 +64,7 @@ describe("vendorService", () => {
         role: "CUSTOMER",
         businessName: "Jane Events",
       })
-    ).rejects.toThrow("Only vendors can access vendor profiles");
+    ).rejects.toThrow("Only vendors can create a vendor profile");
 
     expect(mockPrisma.vendorProfile.findUnique).not.toHaveBeenCalled();
     expect(mockPrisma.vendorProfile.create).not.toHaveBeenCalled();

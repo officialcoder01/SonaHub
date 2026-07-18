@@ -205,7 +205,7 @@ describe("booking routes", () => {
         .set("Authorization", customerAuth);
 
       expect(res.status).toBe(403);
-      expect(res.body.message).toBe("Only vendors can manage bookings");
+      expect(res.body.message).toBe("Only vendors can manage their bookings");
       expect(mockPrisma.booking.findMany).not.toHaveBeenCalled();
     });
   });

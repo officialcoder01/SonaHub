@@ -273,7 +273,7 @@ describe("service routes", () => {
         .field("categoryId", "category-1");
 
       expect(res.status).toBe(403);
-      expect(res.body.message).toBe("Only vendors can access services");
+      expect(res.body.message).toBe("Only vendors can create services");
       expect(mockPrisma.service.create).not.toHaveBeenCalled();
     });
 
