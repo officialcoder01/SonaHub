@@ -85,7 +85,7 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
             Vendors are joining soon.
           </h3>
           <p className="mt-2 text-sm text-slate-600">
-            Featured artisan profiles will appear here as the marketplace grows.
+            Featured vendors profiles will appear here as the marketplace grows.
           </p>
         </div>
       ) : null}

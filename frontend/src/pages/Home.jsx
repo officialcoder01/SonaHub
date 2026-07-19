@@ -9,23 +9,27 @@ import TopRatedArtisans from "../components/home/TopRatedArtisans";
 import PublicLayout from "../layouts/PublicLayout";
 import { getCategories, getServices } from "../services/serviceService";
 import { getVendors } from "../services/vendorService";
+import { getTopRatedVendors } from "../services/recommendationService";
 
 const initialHomeData = {
   categories: [],
   services: [],
   vendors: [],
+  topRatedVendors: [],
 };
 
 const initialLoadingState = {
   categories: true,
   services: true,
   vendors: true,
+  topRatedVendors: true,
 };
 
 const initialErrors = {
   categories: "",
   services: "",
   vendors: "",
+  topRatedVendors: "",
 };
 
 export default function Home() {
@@ -37,8 +41,8 @@ export default function Home() {
     let isActive = true;
 
     const loadHomeData = async () => {
-      const [categoriesResult, servicesResult, vendorsResult] =
-        await Promise.allSettled([getCategories(), getServices(), getVendors()]);
+      const [categoriesResult, servicesResult, vendorsResult, topRatedVendorsResult] =
+        await Promise.allSettled([getCategories(), getServices(), getVendors(), getTopRatedVendors()]);
 
       if (!isActive) {
         return;
@@ -85,10 +89,27 @@ export default function Home() {
         }));
       }
 
+      if (topRatedVendorsResult.status === "fulfilled") {
+        const topRatedVendors = Array.isArray(topRatedVendorsResult.value)
+          ? topRatedVendorsResult.value
+          : topRatedVendorsResult.value.vendors || [];
+
+        setHomeData((current) => ({
+          ...current,
+          topRatedVendors,
+        }));
+      } else {
+        setErrors((current) => ({
+          ...current,
+          topRatedVendors: topRatedVendorsResult.reason?.message || "Unable to load top rated vendors",
+        }));
+      }
+
       setIsLoading({
         categories: false,
         services: false,
         vendors: false,
+        topRatedVendors: false,
       });
     };
 
@@ -98,6 +119,11 @@ export default function Home() {
       isActive = false;
     };
   }, []);
+
+  const visibleCategories = useMemo(
+    () => homeData.categories.slice(0, 8),
+    [homeData.categories],
+  );
 
   const featuredServices = useMemo(
     () => homeData.services.slice(0, 8),
@@ -109,9 +135,9 @@ export default function Home() {
     [homeData.vendors],
   );
 
-  const visibleCategories = useMemo(
-    () => homeData.categories.slice(0, 8),
-    [homeData.categories],
+  const topRatedVendors = useMemo(
+    () => homeData.topRatedVendors,
+    [homeData.topRatedVendors],
   );
 
   return (
@@ -140,9 +166,9 @@ export default function Home() {
         />
 
         <TopRatedArtisans
-          vendors={featuredVendors}
-          isLoading={isLoading.vendors}
-          error={errors.vendors}
+          vendors={topRatedVendors}
+          isLoading={isLoading.topRatedVendors}
+          error={errors.topRatedVendors}
         />
 
         <CTASection />
