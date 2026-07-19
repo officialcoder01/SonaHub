@@ -10,7 +10,7 @@ const handleResponse = async (response) => {
     return result;
 }
 
-const topRatedVendors = async () => {
+export const topRatedVendors = async () => {
     const response = await fetch(`${API_URL}/top-rated-vendors`);
 
     return handleResponse(response);
