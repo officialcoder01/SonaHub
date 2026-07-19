@@ -21,24 +21,20 @@ export const getTopRatedVendors = async () => {
                 },
             },
         ],
+        having: {
+            rating: {
+                _count: {
+                    gte: 3,
+                }
+            }
+        },
         take: 3,
     });
-
-    const topReviewStats = [...reviewStats]
-        .sort((a, b) => {
-            const ratingDiff = (b._avg.rating ?? 0) - (a._avg.rating ?? 0);
-            if (ratingDiff !== 0) {
-                return ratingDiff;
-            }
-
-            return (b._count.rating ?? 0) - (a._count.rating ?? 0);
-        })
-        .slice(0, 3);
 
     const vendors = await prisma.vendorProfile.findMany({
         where: {
             id: {
-                in: topReviewStats.map((r) => r.vendorId),
+                in: reviewStats.map((r) => r.vendorId),
             },
         },
         select: {
@@ -75,7 +71,8 @@ export const getTopRatedVendors = async () => {
         ])
     );
 
-    return topReviewStats
+    return reviewStats
+        .slice(0, 3)
         .map((stat) => {
             const vendor = vendorMap.get(stat.vendorId);
             if (!vendor) {
