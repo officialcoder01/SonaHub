@@ -38,10 +38,10 @@ describe("GET /api/recommendations/top-rated-vendors", () => {
     ]);
 
     mockPrisma.vendorProfile.findMany.mockResolvedValue([
-      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" } },
-      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" } },
-      { id: "vendor-3", businessName: "Studio Three", location: "Kano", isVerified: true, user: { name: "Tunde" } },
-      { id: "vendor-4", businessName: "Studio Four", location: "Port Harcourt", isVerified: true, user: { name: "Mina" } },
+      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" }, _count: { bookings: 5}, },
+      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" }, _count: { bookings: 5}, },
+      { id: "vendor-3", businessName: "Studio Three", location: "Kano", isVerified: true, user: { name: "Tunde" }, _count: { bookings: 5}, },
+      { id: "vendor-4", businessName: "Studio Four", location: "Port Harcourt", isVerified: true, user: { name: "Mina" }, _count: { bookings: 5}, },
     ]);
 
     const res = await request(app).get("/api/recommendations/top-rated-vendors");
@@ -58,8 +58,8 @@ describe("GET /api/recommendations/top-rated-vendors", () => {
     ]);
 
     mockPrisma.vendorProfile.findMany.mockResolvedValue([
-      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" } },
-      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" } },
+      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" }, _count: { bookings: 5}, },
+      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" }, _count: { bookings: 5}, },
     ]);
 
     const res = await request(app).get("/api/recommendations/top-rated-vendors");
@@ -76,7 +76,7 @@ describe("GET /api/recommendations/top-rated-vendors", () => {
     ]);
 
     mockPrisma.vendorProfile.findMany.mockResolvedValue([
-      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" }, extraField: "should-not-appear" },
+      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" }, _count: { bookings: 5}, extraField: "should-not-appear" },
     ]);
 
     const res = await request(app).get("/api/recommendations/top-rated-vendors");
@@ -88,10 +88,11 @@ describe("GET /api/recommendations/top-rated-vendors", () => {
       location: "Abuja",
       isVerified: false,
       user: { name: "Ada" },
+      completedJobs: 5,
       averageRating: 4.5,
       reviewCount: 2,
     });
-    expect(Object.keys(res.body[0]).sort()).toEqual(["averageRating", "businessName", "id", "isVerified", "location", "reviewCount", "user"]);
+    expect(Object.keys(res.body[0]).sort()).toEqual(["averageRating", "businessName", "completedJobs", "id", "isVerified", "location", "reviewCount", "user"]);
   });
 
   test("excludes vendors that have no reviews", async () => {
@@ -100,8 +101,8 @@ describe("GET /api/recommendations/top-rated-vendors", () => {
     ]);
 
     mockPrisma.vendorProfile.findMany.mockResolvedValue([
-      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" } },
-      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" } },
+      { id: "vendor-2", businessName: "Studio Two", location: "Lagos", isVerified: true, user: { name: "Bola" }, _count: { bookings: 0}, },
+      { id: "vendor-1", businessName: "Studio One", location: "Abuja", isVerified: false, user: { name: "Ada" }, _count: { bookings: 2}, },
     ]);
 
     const res = await request(app).get("/api/recommendations/top-rated-vendors");
