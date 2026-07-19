@@ -51,6 +51,13 @@ export const getTopRatedVendors = async () => {
                     name: true,
                 },
             },
+            _count: {
+                select: {
+                    bookings: {
+                        where: { status: "COMPLETED" }
+                    }
+                },
+            }
         },
     });
 
@@ -63,6 +70,7 @@ export const getTopRatedVendors = async () => {
                 location: vendor.location,
                 isVerified: vendor.isVerified,
                 user: vendor.user,
+                completedJobs: vendor._count.bookings
             },
         ])
     );

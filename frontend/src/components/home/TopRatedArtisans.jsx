@@ -103,7 +103,7 @@ export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
                           <Briefcase className="h-3 w-3 text-amber-600" aria-hidden="true" />
                           Completed Jobs
                         </span>
-                        <strong>{vendor.completedJobs || 10 + index * 2}</strong>
+                        <strong>{vendor.completedJobs}</strong>
                       </div>
                       <div className="flex items-center justify-between gap-3">
                         <span className="inline-flex items-center gap-1.5">
