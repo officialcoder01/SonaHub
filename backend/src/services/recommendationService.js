@@ -91,11 +91,44 @@ export const getTopRatedVendors = async () => {
 
 // retrieve pinned services for a vendor's profile page
 export const pinnedServicesForVendor = async (vendorId) => {
-    return await prisma.service.findMany({
+    const services = await prisma.service.findMany({
         where: {
             vendorId: vendorId,
             isPinned: true,
             isArchived: false
+        },
+        include: {
+            category: true,
+            images: true,
+            vendor: {
+                select: {
+                    businessName: true,
+                    location: true,
+                },
+            },
+            _count: {
+                select: {
+                    reviews: true,
+                },
+            },
         }
     });
+
+    return Promise.all(
+        services.map(async (service) => {
+            const aggregate = await prisma.review.aggregate({
+                where: { serviceId: service.id },
+                _avg: { rating: true },
+            });
+
+            const { _count, ...serviceData } = service;
+
+            return {
+                ...serviceData,
+                averageRating: Number(aggregate._avg.rating?.toFixed(1) ?? 0),
+                reviewCount: _count.reviews,
+            }
+        })
+    );
+    
 };

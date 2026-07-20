@@ -18,6 +18,6 @@ export const getPinnedServicesForVendor = async (req, res) => {
         const services = await pinnedServicesForVendor(userId);
         res.json(services);
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };
