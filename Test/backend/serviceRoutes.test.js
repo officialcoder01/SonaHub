@@ -15,12 +15,19 @@ const mockPrisma = {
     create: jest.fn(),
     findMany: jest.fn(),
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     delete: jest.fn(),
     update: jest.fn(),
   },
   review: {
     findMany: jest.fn()
-  }
+  },
+  transaction: jest.fn(async (callback) => {
+    return callback({
+      vendorProfile: mockPrisma.vendorProfile,
+      service: mockPrisma.service,
+    });
+  }),
 };
 
 let uploadCount = 0;
@@ -915,6 +922,137 @@ describe("service routes", () => {
       expect(res.status).toBe(404);
       expect(res.body).toEqual({ message: "Service not found" });
       expect(mockPrisma.service.findMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PATCH /api/services/:id/pin", () => {
+    test("should pin a service for the vendor", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+      const service = { id: "service-1", vendorId: "vendor-1", isArchived: false, isPinned: false };
+      const updatedService = { ...service, isPinned: true };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(service);
+      mockPrisma.service.count.mockResolvedValue(2);
+      mockPrisma.service.update.mockResolvedValue(updatedService);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/pin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(updatedService);
+      expect(mockPrisma.transaction).toHaveBeenCalled();
+      expect(mockPrisma.service.findFirst).toHaveBeenCalledWith({
+        where: { id: "service-1", vendorId: "vendor-1", isArchived: false },
+      });
+      expect(mockPrisma.service.update).toHaveBeenCalledWith({
+        where: { id: "service-1" },
+        data: { isPinned: true },
+      });
+    });
+
+    test("should not allow vendor to pin more than 5 services", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+      const service = { id: "service-1", vendorId: "vendor-1", isArchived: false, isPinned: false };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(service);
+      mockPrisma.service.count.mockResolvedValue(5);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/pin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("You can only pin up to 5 services at a time.");
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
+    });
+
+    test("should return existing service when already pinned", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+      const service = { id: "service-1", vendorId: "vendor-1", isArchived: false, isPinned: true };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(service);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/pin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(service);
+      expect(mockPrisma.service.count).not.toHaveBeenCalled();
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
+    });
+
+    test("should return 404 for pinned service when vendor does not own it or it is archived", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(null);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/pin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe("Service not found or not owned by vendor");
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PATCH /api/services/:id/unpin", () => {
+    test("should unpin a service for the vendor", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+      const service = { id: "service-1", vendorId: "vendor-1", isArchived: false, isPinned: true };
+      const updatedService = { ...service, isPinned: false };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(service);
+      mockPrisma.service.update.mockResolvedValue(updatedService);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/unpin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(updatedService);
+      expect(mockPrisma.service.update).toHaveBeenCalledWith({
+        where: { id: "service-1" },
+        data: { isPinned: false },
+      });
+    });
+
+    test("should return existing service when it is already unpinned", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+      const service = { id: "service-1", vendorId: "vendor-1", isArchived: false, isPinned: false };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(service);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/unpin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(service);
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
+    });
+
+    test("should return 404 when unpinning a service that is archived or not owned", async () => {
+      const vendorProfile = { id: "vendor-1", userId: "user-1" };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(vendorProfile);
+      mockPrisma.service.findFirst.mockResolvedValueOnce(null);
+
+      const res = await request(app)
+        .patch("/api/services/service-1/unpin")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }));
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe("Service not found or not owned by vendor");
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
     });
   });
 });

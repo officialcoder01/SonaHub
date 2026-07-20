@@ -1,5 +1,6 @@
 import prisma from '../config/prisma.js';
 
+// Retrieve top-rated vendors based on average rating and number of reviews
 export const getTopRatedVendors = async () => {
     const reviewStats = await prisma.review.groupBy({
         by: ["vendorId"],
@@ -86,4 +87,15 @@ export const getTopRatedVendors = async () => {
             };
         })
         .filter(Boolean);
+};
+
+// retrieve pinned services for a vendor's profile page
+export const pinnedServicesForVendor = async (vendorId) => {
+    return await prisma.service.findMany({
+        where: {
+            vendorId: vendorId,
+            isPinned: true,
+            isArchived: false
+        }
+    });
 };

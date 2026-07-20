@@ -5,6 +5,8 @@ import {
   updateService,
   getAllCategories,
   getServiceDetailsById,
+  pinServiceForVendor,
+  unpinServiceForVendor,
 } from "../services/serviceService.js";
 
 // Create a new service listing, ensuring the requesting user is a vendor
@@ -26,6 +28,32 @@ export const createServiceListing = async (req, res) => {
       message: err.message || "Unable to create service",
     });
   }
+};
+
+// Pin a service for the authenticated vendor
+export const pinService = async (req, res) => {
+    const serviceId = req.params.id;
+    const { id: userId, role } = req.user;
+
+    try {
+        const updatedService = await pinServiceForVendor({ userId, role, serviceId });
+        res.status(200).json(updatedService);
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message || 'Internal server error' });
+    }
+};
+
+// Unpin a service for the authenticated vendor
+export const unpinService = async (req, res) => {
+    const serviceId = req.params.id;
+    const { id: userId, role } = req.user;
+
+    try {
+        const updatedService = await unpinServiceForVendor({ userId, role, serviceId });
+        res.status(200).json(updatedService);
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message || 'Internal server error' });
+    }
 };
 
 // Retrieve all services for public listing, including vendor info and images

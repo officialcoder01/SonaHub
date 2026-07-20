@@ -336,3 +336,99 @@ export const getServiceDetailsById = async (serviceId) => {
     relatedServices: relatedServicesWithStats,
   };
 };
+
+// Pin service for a vendor's profile page
+export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
+    await assertVendor(role, "You are not authorized to pin services for this vendor.");
+
+    return await prisma.transaction(async (tx) => {
+      const vendor = await tx.vendorProfile.findUnique({
+        where: { userId },
+      });
+
+      if (!vendor) {
+        const error = new Error("Vendor profile is required to pin services");
+        error.status = 403;
+        throw error;
+      }
+
+      const service = await tx.service.findFirst({
+        where: {
+          id: serviceId,
+          vendorId: vendor.id,
+          isArchived: false,
+        },
+      });
+
+      if (!service) {
+        const error = new Error("Service not found or not owned by vendor");
+        error.status = 404;
+        throw error;
+      }
+
+      if (service.isPinned) {
+        return service;
+      }
+
+      const pinCount = await tx.service.count({
+        where: {
+          vendorId: vendor.id,
+          isPinned: true,
+          isArchived: false,
+        },
+      });
+
+      if (pinCount >= 5) {
+        const error = new Error("You can only pin up to 5 services at a time.");
+        error.status = 400;
+        throw error;
+      }
+
+      return tx.service.update({
+        where: { id: serviceId },
+        data: { isPinned: true },
+      });
+    });
+};
+
+// Unpin service for a vendor's profile page
+export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
+    await assertVendor(role, "You are not authorized to unpin services for this vendor.");
+
+    const vendor = await prisma.vendorProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!vendor) {
+      const error = new Error("Vendor profile is required to unpin services");
+      error.status = 403;
+      throw error;
+    }
+
+    const service = await prisma.service.findFirst({
+      where: {
+        id: serviceId,
+        vendorId: vendor.id,
+        isArchived: false,
+      },
+    });
+
+    if (!service) {
+      const error = new Error("Service not found or not owned by vendor");
+      error.status = 404;
+      throw error;
+    }
+
+    if (!service.isPinned) {
+      return service;
+    }
+
+    return await prisma.service.update({
+        where: {
+            id: serviceId,
+        },
+        data: {
+            isPinned: false,
+        },
+    });
+};
