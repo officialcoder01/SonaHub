@@ -91,6 +91,9 @@ model Service {
 
   createdAt   DateTime       @default(now())
   isArchived  Boolean        @default(false)
+
+  isPinned   Boolean        @default(false) // for featured services on the vendor's profile page
+  isFeatured Boolean        @default(false) // for featured services on the home page
 }
 
 //////////////////////////////////////////////////////
