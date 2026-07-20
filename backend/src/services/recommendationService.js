@@ -129,6 +129,5 @@ export const pinnedServicesForVendor = async (vendorId) => {
                 reviewCount: _count.reviews,
             }
         })
-    );
-    
+    ); 
 };
