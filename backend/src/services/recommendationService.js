@@ -125,9 +125,11 @@ export const pinnedServicesForVendor = async (vendorId) => {
 
             return {
                 ...serviceData,
-                averageRating: Number(aggregate._avg.rating?.toFixed(1) ?? 0),
-                reviewCount: _count.reviews,
-            }
+                reviewStats: {
+                    averageRating: Number(aggregate._avg.rating?.toFixed(1) ?? 0),
+                    totalReviews: _count.reviews,
+                }
+            };
         })
     ); 
 };
