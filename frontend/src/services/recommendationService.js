@@ -8,10 +8,16 @@ const handleResponse = async (response) => {
     };
 
     return result;
-}
+};
 
 export const getTopRatedVendors = async () => {
     const response = await fetch(`${API_URL}/top-rated-vendors`);
 
     return handleResponse(response);
-}
+};
+
+export const getVendorPinnedServices = async (vendorId) => {
+    const response = await fetch(`${API_URL}/${vendorId}/pinned-services`);
+
+    return handleResponse(response);
+};

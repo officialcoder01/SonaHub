@@ -13,7 +13,7 @@ export default function VendorFeaturedServices({ services = [] }) {
   const navigate = useNavigate();
 
   // Temporary: treat the first 3 services as the featured selection
-  const featuredServices = services.slice(0, 3);
+  const featuredServices = services;
 
   const actions = [
     {

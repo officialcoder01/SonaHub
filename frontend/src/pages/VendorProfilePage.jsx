@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import { getVendorById } from "../services/vendorService";
+import { getVendorPinnedServices } from "../services/recommendationService";
 import VendorAbout from "../components/vendor/VendorAbout";
 import VendorFeaturedServices from "../components/vendor/VendorFeaturedServices";
 import VendorHeader from "../components/vendor/VendorHeader";
@@ -13,6 +14,7 @@ export default function VendorProfilePage() {
   const { id } = useParams();
 
   const [vendor, setVendor] = useState(null);
+  const [pinnedServices, setPinnedServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,9 +27,11 @@ export default function VendorProfilePage() {
     setError("");
 
     try {
-      const response = await getVendorById(id);
+      const vendorResponse = await getVendorById(id);
+      const pinnedServicesResponse = await getVendorPinnedServices(id);
       // Backend returns { vendorProfile: { ...vendor } }
-      setVendor(response.vendorProfile);
+      setVendor(vendorResponse.vendorProfile);
+      setPinnedServices(pinnedServicesResponse);
     } catch (err) {
       setError(err.message || "Unable to load vendor profile");
     } finally {
@@ -43,11 +47,13 @@ export default function VendorProfilePage() {
       setError("");
 
       try {
-        const response = await getVendorById(id);
+        const vendorResponse = await getVendorById(id);
+        const pinnedServicesResponse = await getVendorPinnedServices(id);
 
         // Guard against state updates after fast route changes or unmount
         if (isActive) {
-          setVendor(response.vendorProfile);
+          setVendor(vendorResponse.vendorProfile);
+          setPinnedServices(pinnedServicesResponse)
         }
       } catch (err) {
         if (isActive) {
@@ -106,7 +112,7 @@ export default function VendorProfilePage() {
           <VendorAbout vendor={vendor} />
 
           {/* 3. Featured Work – first 3 services as a temporary placeholder */}
-          <VendorFeaturedServices services={vendor.services || []} />
+          <VendorFeaturedServices services={pinnedServices || []} />
 
           {/* 4. Customer Reviews – with initial collapse + expand */}
           <ReviewsSection
