@@ -52,9 +52,9 @@ export default function Login() {
             to="/"
             className="text-2xl font-extrabold tracking-tight text-blue-700"
           >
-            Artisan Market
+            Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
           </Link>
-          <h1 className="mt-8">Welcome back</h1>
+          <h1 className="mt-5">Welcome back</h1>
           <p className="mt-2">Access your marketplace account.</p>
         </div>
 

@@ -52,7 +52,7 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
         <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:px-6 lg:min-h-20 lg:px-8">
           <Link
             to="/"
-            className="shrink-0 text-lg font-extrabold tracking-tight sm:text-2xl"
+            className="text-2xl font-extrabold tracking-tight text-blue-700"
             onClick={closeMenu}
           >
             Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
