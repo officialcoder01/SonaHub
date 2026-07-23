@@ -89,7 +89,7 @@ export const getVendorProfileByUserId = async (userId, role) => {
   };
 };
 
-// Retrive vendor profile by vendor ID for public vendor profile page
+// Retrieve vendor profile by vendor ID for public vendor profile page
 export const getVendorProfileByVendorId = async (vendorId) => {
   const vendor = await prisma.vendorProfile.findUnique({
     where: { id: vendorId },
@@ -139,9 +139,12 @@ export const getVendorProfileByVendorId = async (vendorId) => {
     reviewStats: calculateReviewStats(service.reviews),
   }));
 
+  const pinnedServices = services.filter((service) => service.isPinned);
+
   return {
     ...vendor,
     reviewStats: vendorReviewStat,
+    pinnedServices,
     services
   };
 };
