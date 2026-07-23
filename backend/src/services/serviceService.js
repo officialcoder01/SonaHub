@@ -341,7 +341,7 @@ export const getServiceDetailsById = async (serviceId) => {
 export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
     await assertVendor(role, "You are not authorized to pin services for this vendor.");
 
-    return await prisma.transaction(async (tx) => {
+    return await prisma.$transaction(async (tx) => {
       const vendor = await tx.vendorProfile.findUnique({
         where: { userId },
       });
