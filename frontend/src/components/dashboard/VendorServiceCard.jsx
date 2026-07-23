@@ -1,13 +1,51 @@
+import { useEffect, useRef, useState } from "react";
+import { MoreVertical, Star } from "lucide-react";
 import { getFirstImageUrl, getCategoryName, formatPrice } from "../../utils/serviceHelpers.js"
 
-export default function VendorServiceCard({ service, onEdit, onDelete }) {
+export default function VendorServiceCard({
+  service,
+  onEdit,
+  onDelete,
+  onToggleFeatured,
+  isFeatureUpdating,
+}) {
+  const menuRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const imageUrl = getFirstImageUrl(service);
   const categoryName = getCategoryName(service);
   const status = service.status || "Active";
+  const isFeatured = Boolean(service.isPinned);
+
+  useEffect(() => {
+    const closeMenu = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const closeMenuOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeMenu);
+    document.addEventListener("keydown", closeMenuOnEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", closeMenu);
+      document.removeEventListener("keydown", closeMenuOnEscape);
+    };
+  }, []);
+
+  const handleFeatureToggle = async () => {
+    await onToggleFeatured(service);
+    setIsMenuOpen(false);
+  };
 
   return (
     <article className="flex min-h-[292px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
-      <div className="h-36 overflow-hidden bg-slate-100">
+      <div className="relative h-36 overflow-hidden bg-slate-100">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -20,6 +58,45 @@ export default function VendorServiceCard({ service, onEdit, onDelete }) {
             No image added
           </div>
         )}
+
+        <div className="absolute right-2 top-2 z-30 flex justify-end" ref={menuRef}>
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-950"
+            aria-label={`${isFeatured ? "Remove" : "Feature"} ${service.title}`}
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen((current) => !current)}
+            disabled={isFeatureUpdating}
+          >
+            <MoreVertical className="h-5 w-5" aria-hidden="true" />
+          </button>
+
+          {isMenuOpen ? (
+            <div
+              className="absolute right-0 top-full z-10 mt-1 w-56 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-950/10"
+              role="menu"
+            >
+              <button
+                type="button"
+                className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset ${isFeatured
+                    ? "text-blue-700 hover:bg-blue-50"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                role="menuitem"
+                onClick={handleFeatureToggle}
+                disabled={isFeatureUpdating}
+              >
+                <Star
+                  className="h-4 w-4 shrink-0"
+                  fill="currentColor"
+                  aria-hidden="true"
+                />
+                {isFeatured ? "Remove from featured" : "Feature Service"}
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-4">

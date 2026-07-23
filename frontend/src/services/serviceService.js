@@ -80,6 +80,24 @@ export const getMyServices = async (token) => {
     return handleResponse(response);
 };
 
+export const pinMyService = async (serviceId, token) => {
+  const response = await fetch(`${API_URL}/${serviceId}/pin`, {
+    method: "PATCH",
+    headers: authHeaders(token),
+  });
+
+  return handleResponse(response);
+};
+
+export const unpinMyService = async (serviceId, token) => {
+  const response = await fetch(`${API_URL}/${serviceId}/unpin`, {
+    method: "PATCH",
+    headers: authHeaders(token),
+  });
+
+  return handleResponse(response);
+};
+
 export const deleteService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}`, {
     method: "PATCH",

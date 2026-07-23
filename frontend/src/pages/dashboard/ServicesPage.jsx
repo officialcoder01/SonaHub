@@ -4,7 +4,12 @@ import DashboardEmptyState from "../../components/dashboard/DashboardEmptyState"
 import ServiceCardSkeleton from "../../components/dashboard/ServiceCardSkeleton";
 import VendorServiceCard from "../../components/dashboard/VendorServiceCard"
 import { useAuth } from "../../context/AuthContext";
-import { deleteService, getMyServices } from "../../services/serviceService";
+import {
+  deleteService,
+  getMyServices,
+  pinMyService,
+  unpinMyService,
+} from "../../services/serviceService";
 
 const SERVICES_PER_PAGE = 12;
 
@@ -18,6 +23,7 @@ export default function ServicesPage() {
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [featureServiceId, setFeatureServiceId] = useState(null);
 
   const totalPages = Math.max(1, Math.ceil(services.length / SERVICES_PER_PAGE));
   const pageStart = (currentPage - 1) * SERVICES_PER_PAGE;
@@ -127,6 +133,33 @@ export default function ServicesPage() {
     console.log("Edit service:", service.id);
   };
 
+  const handleToggleFeatured = async (service) => {
+    if (!token) {
+      return;
+    }
+
+    setFeatureServiceId(service.id);
+
+    try {
+      const response = service.isPinned
+        ? await unpinMyService(service.id, token)
+        : await pinMyService(service.id, token);
+      const updatedService = response.service || response;
+
+      setServices((currentServices) =>
+        currentServices.map((currentService) =>
+          currentService.id === service.id
+            ? { ...currentService, ...updatedService, isPinned: !service.isPinned }
+            : currentService,
+        ),
+      );
+    } catch (err) {
+      setError(err.message || "Unable to update featured service");
+    } finally {
+      setFeatureServiceId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -185,6 +218,8 @@ export default function ServicesPage() {
                 service={service}
                 onEdit={handleEditService}
                 onDelete={openDeleteModal}
+                onToggleFeatured={handleToggleFeatured}
+                isFeatureUpdating={featureServiceId === service.id}
               />
             ))}
           </div>
