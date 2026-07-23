@@ -15,9 +15,3 @@ export const getTopRatedVendors = async () => {
 
     return handleResponse(response);
 };
-
-export const getVendorPinnedServices = async (vendorId) => {
-    const response = await fetch(`${API_URL}/${vendorId}/pinned-services`);
-
-    return handleResponse(response);
-};

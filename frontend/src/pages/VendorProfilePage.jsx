@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import PublicLayout from "../layouts/PublicLayout";
 import { getVendorById } from "../services/vendorService";
-import { getVendorPinnedServices } from "../services/recommendationService";
 import VendorAbout from "../components/vendor/VendorAbout";
 import VendorFeaturedServices from "../components/vendor/VendorFeaturedServices";
 import VendorHeader from "../components/vendor/VendorHeader";
@@ -18,60 +17,43 @@ export default function VendorProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Use a ref to track the active vendor ID to prevent state updates after unmount or route change
+  const activeIdRef = useRef(id);
+
   //////////////////////////////////////////////////
   // Load the vendor's public profile from the API.
   // Wrapped in useCallback so it can be called again on error retry.
   //////////////////////////////////////////////////
-  const loadVendor = useCallback(async () => {
+  const loadVendor = useCallback(async (targetId) => {
     setIsLoading(true);
     setError("");
 
     try {
-      const vendorResponse = await getVendorById(id);
-      const pinnedServicesResponse = await getVendorPinnedServices(id);
-      // Backend returns { vendorProfile: { ...vendor } }
-      setVendor(vendorResponse.vendorProfile);
-      setPinnedServices(pinnedServicesResponse);
+      const response = await getVendorById(targetId);
+
+      if (activeIdRef.current === targetId) {
+        setVendor(response.vendorProfile);
+        setPinnedServices(response.vendorProfile.pinnedServices || []);
+      }
     } catch (err) {
-      setError(err.message || "Unable to load vendor profile");
+      if (activeIdRef.current === targetId) {
+        setError(err.message || "Unable to load vendor profile");
+      }
     } finally {
-      setIsLoading(false);
+      if (activeIdRef.current === targetId) {
+        setIsLoading(false);
+      }
     }
-  }, [id]);
+  }, []);
 
   useEffect(() => {
-    let isActive = true;
-
-    const load = async () => {
-      setIsLoading(true);
-      setError("");
-
-      try {
-        const vendorResponse = await getVendorById(id);
-        const pinnedServicesResponse = await getVendorPinnedServices(id);
-
-        // Guard against state updates after fast route changes or unmount
-        if (isActive) {
-          setVendor(vendorResponse.vendorProfile);
-          setPinnedServices(pinnedServicesResponse)
-        }
-      } catch (err) {
-        if (isActive) {
-          setError(err.message || "Unable to load vendor profile");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    load();
+    activeIdRef.current = id; // Update the active ID ref on route change
+    loadVendor(id);
 
     return () => {
-      isActive = false;
+      activeIdRef.current = null; // Clear the ref on unmount to prevent state updates
     };
-  }, [id]);
+  }, [id, loadVendor]);
 
   return (
     <PublicLayout contentClassName="max-w-[80rem] pb-20 pt-28 lg:pt-28">
