@@ -14,6 +14,10 @@ const handleResponse = async (response) => {
   return result;
 };
 
+const authHeaders = (token) => ({
+  Authorization: `Bearer ${token}`,
+});
+
 export const getCategories = async () => {
   const response = await fetch(`${API_URL}/categories`);
 
@@ -61,9 +65,7 @@ export const createService = async (data, token) => {
 
     const response = await fetch(API_URL, {
         method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: authHeaders(token),
         body: formData,
     });
 
@@ -72,9 +74,7 @@ export const createService = async (data, token) => {
 
 export const getMyServices = async (token) => {
     const response = await fetch(`${API_URL}/my`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: authHeaders(token),
     });
 
     return handleResponse(response);
@@ -83,9 +83,7 @@ export const getMyServices = async (token) => {
 export const deleteService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}`, {
     method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeaders(token),
   });
 
   return handleResponse(response);
