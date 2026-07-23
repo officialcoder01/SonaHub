@@ -393,9 +393,10 @@ export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
 
 // Unpin service for a vendor's profile page
 export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
-    await assertVendor(role, "You are not authorized to unpin services for this vendor.");
+  await assertVendor(role, "You are not authorized to unpin services for this vendor.");
 
-    const vendor = await prisma.vendorProfile.findUnique({
+  return await prisma.$transaction(async (tx) => {
+    const vendor = await tx.vendorProfile.findUnique({
       where: { userId },
     });
 
@@ -405,7 +406,7 @@ export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
       throw error;
     }
 
-    const service = await prisma.service.findFirst({
+    const service = await tx.service.findFirst({
       where: {
         id: serviceId,
         vendorId: vendor.id,
@@ -423,12 +424,13 @@ export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
       return service;
     }
 
-    return await prisma.service.update({
-        where: {
-            id: serviceId,
-        },
-        data: {
-            isPinned: false,
-        },
+    return tx.service.update({
+      where: {
+        id: serviceId,
+      },
+      data: {
+        isPinned: false,
+      },
     });
+  })
 };
