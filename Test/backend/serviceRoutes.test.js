@@ -22,7 +22,7 @@ const mockPrisma = {
   review: {
     findMany: jest.fn()
   },
-  transaction: jest.fn(async (callback) => {
+  $transaction: jest.fn(async (callback) => {
     return callback({
       vendorProfile: mockPrisma.vendorProfile,
       service: mockPrisma.service,
@@ -942,7 +942,7 @@ describe("service routes", () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toEqual(updatedService);
-      expect(mockPrisma.transaction).toHaveBeenCalled();
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
       expect(mockPrisma.service.findFirst).toHaveBeenCalledWith({
         where: { id: "service-1", vendorId: "vendor-1", isArchived: false },
       });
