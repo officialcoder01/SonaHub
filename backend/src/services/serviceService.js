@@ -237,6 +237,7 @@ export const getServiceDetailsById = async (serviceId) => {
         include: {
           user: {
             select: {
+              id: true,
               name: true,
             },
           },

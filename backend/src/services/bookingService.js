@@ -60,9 +60,6 @@ const assertStatus = (booking, allowedStatuses, message) => {
 };
 
 export const createBooking = async ({ userId, role, serviceId, message }) => {
-  // Customers are the only actors allowed to open booking requests.
-  assertCustomer(role, "Only customers can create bookings");
-
   const service = await prisma.service.findUnique({
     where: { id: serviceId },
     include: { vendor: true },

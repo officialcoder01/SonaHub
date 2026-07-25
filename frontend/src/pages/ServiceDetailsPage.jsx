@@ -25,8 +25,8 @@ export default function ServiceDetailsPage() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const isAuthenticated = Boolean(user || token);
-  const isVendor = user?.role === "VENDOR";
-
+  const isNotAuthOrVendorOwnService = !user || (user?.role === "VENDOR" && user?.id === service?.vendor?.user.id);
+ 
   //////////////////////////////////////////////////
   // Handle 'Book Now' flow
   // Redirects guests to login, opens modal for customers
@@ -34,7 +34,7 @@ export default function ServiceDetailsPage() {
   const handleBookNow = () => {
     if (!isAuthenticated) {
       navigate("/login");
-    } else if (user?.role === "CUSTOMER") {
+    } else {
       setIsBookingModalOpen(true);
     }
   };
@@ -55,37 +55,8 @@ export default function ServiceDetailsPage() {
   }, [id]);
 
   useEffect(() => {
-    let isActive = true;
-
-    const loadPage = async () => {
-      setIsLoading(true);
-      setError("");
-
-      try {
-        const response = await getServiceDetails(id);
-
-        if (isActive) {
-          setService(response.service);
-          setRelatedServices(response.relatedServices || []);
-        }
-      } catch (err) {
-        if (isActive) {
-          setError(err.message || "Unable to load service details");
-        }
-      } finally {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadPage();
-
-    return () => {
-      // Prevent setting state after a fast route change or unmount.
-      isActive = false;
-    };
-  }, [id]);
+    loadServiceDetails();
+  }, [loadServiceDetails]);
 
   const scrollToRelatedServices = () => {
     // Keep the "View Similar" action focused on the related service section.
@@ -133,7 +104,7 @@ export default function ServiceDetailsPage() {
               service={service}
               onViewSimilar={scrollToRelatedServices}
               onBookNow={handleBookNow}
-              isVendor={isVendor}
+              isNotAuthOrVendorOwnService={isNotAuthOrVendorOwnService}
             />
           </section>
 
@@ -164,7 +135,7 @@ export default function ServiceDetailsPage() {
           reviewStats={service.reviewStats}
           />
 
-          {!isVendor && (
+          {!isNotAuthOrVendorOwnService && (
             <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur md:hidden">
               <div className="mx-auto flex max-w-[80rem] items-center gap-3">
                 <div className="min-w-0 flex-1">

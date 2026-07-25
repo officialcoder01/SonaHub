@@ -15,7 +15,7 @@ const renderStars = (rating) => {
   ));
 };
 
-export default function ServiceInfo({ service, onViewSimilar, onBookNow, isVendor }) {
+export default function ServiceInfo({ service, onViewSimilar, onBookNow, isNotAuthOrVendorOwnService }) {
   const reviewStats = service?.reviewStats || {};
   const averageRating = Number(reviewStats.averageRating || 0);
   const totalReviews = Number(reviewStats.totalReviews || 0);
@@ -71,14 +71,14 @@ export default function ServiceInfo({ service, onViewSimilar, onBookNow, isVendo
       </div>
 
       <div className="mt-5 grid gap-3">
-        {isVendor ? (
+        {isNotAuthOrVendorOwnService ? (
           <button
             type="button"
             className="btn-primary w-full py-3 text-base opacity-60 cursor-not-allowed"
             disabled
-            title="Vendors cannot book services"
+            title="Vendors cannot book their services"
           >
-            Disabled for Vendors
+            You Don't have permission
           </button>
         ) : (
           <button
