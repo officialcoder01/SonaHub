@@ -33,11 +33,9 @@ export default function Login() {
     try {
       const response = await loginUser(formData);
       login(response.token, response.user);
-      console.log("Login successful:", response);
       setFormData(initialFormData);
       navigate(response.user.role === "VENDOR" ? "/dashboard" : "/");
     } catch (err) {
-      console.error("Login failed:", err);
       setError(err.message || "Unable to log in");
     } finally {
       setIsSubmitting(false);
