@@ -93,9 +93,6 @@ export const createBooking = async ({ userId, role, serviceId, message }) => {
 };
 
 export const getCustomerBookings = async ({ userId, role }) => {
-  // Customers can only view bookings they created.
-  assertCustomer(role, "Only authenticated customer can access their bookings");
-
   return prisma.booking.findMany({
     where: { customerId: userId },
     include: {
@@ -183,8 +180,6 @@ export const rejectBooking = async ({ userId, role, bookingId }) => {
 };
 
 export const cancelBooking = async ({ userId, role, bookingId }) => {
-  // Customers may cancel only active work: before acceptance or after acceptance.
-  assertCustomer(role);
   const booking = await getBookingById(bookingId);
 
   assertCustomerOwnsBooking(booking, userId);

@@ -77,7 +77,7 @@ export default function CustomerBookingsPage() {
       navigate("/login");
       return;
     }
-    if (user?.role !== "CUSTOMER") {
+    if (user.role !== "CUSTOMER" && user.role !== "VENDOR") {
       navigate("/");
       return;
     }

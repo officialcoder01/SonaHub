@@ -38,7 +38,7 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
           Dashboard
         </NavLink>
       ) : null}
-      {isAuthenticated && !isVendor ? (
+      {isAuthenticated ? (
         <NavLink to="/bookings" className={navLinkClass}>
           My Bookings
         </NavLink>
@@ -159,7 +159,7 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
                   Dashboard
                 </NavLink>
               ) : null}
-              {isAuthenticated && !isVendor ? (
+              {isAuthenticated ? (
                 <NavLink
                   to="/bookings"
                   className={mobileNavLinkClass}
