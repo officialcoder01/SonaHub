@@ -90,17 +90,46 @@ describe("bookingService", () => {
       expect(mockPrisma.booking.create).not.toHaveBeenCalled();
     });
 
-    test("fails when a vendor tries to create a booking", async () => {
-      await expect(
-        createBooking({
-          userId: "vendor-user-1",
-          role: "VENDOR",
-          serviceId: "service-1",
-        })
-      ).rejects.toThrow("Only customers can create bookings");
+    test("allow a vendor to book other vendor's service", async () => {
+      const service = {
+        id: "service-1",
+        vendorId: "vendor-1",
+        vendor: { userId: "vendor-user-1" },
+      };
 
-      expect(mockPrisma.service.findUnique).not.toHaveBeenCalled();
-      expect(mockPrisma.booking.create).not.toHaveBeenCalled();
+      const booking = {
+        id: "booking-1",
+        customerId: "vendor-customer-1",
+        serviceId: "service-1",
+        vendorId: "vendor-1",
+        status: "PENDING",
+      };
+
+      mockPrisma.service.findUnique.mockResolvedValue(service);
+      mockPrisma.booking.create.mockResolvedValue(booking);
+
+      const result = await createBooking({
+        userId: "vendor-customer-1",
+        role: "VENDOR",
+        serviceId: "service-1",
+        });
+
+      expect(mockPrisma.service.findUnique).toHaveBeenCalledWith({
+        where: { id: "service-1" },
+        include: { vendor: true },
+      });
+      expect(mockPrisma.booking.create).toHaveBeenCalledWith({
+        data: {
+          customerId: "vendor-customer-1",
+          vendorId: "vendor-1",
+          serviceId: "service-1",
+        },
+        select: {
+          id: true,
+          status: true,
+        },
+      });
+      expect(result).toEqual(booking);
     });
   });
 

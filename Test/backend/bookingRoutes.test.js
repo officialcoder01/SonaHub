@@ -105,13 +105,24 @@ describe("booking routes", () => {
     });
 
     test("fails when vendor tries to book own service", async () => {
+      mockPrisma.service.findUnique.mockResolvedValue({
+        id: "service-1",
+        vendorId: "vendor-1",
+        vendor: { userId: "vendor-user-1" },
+      });
+
+      mockPrisma.booking.create.mockResolvedValue({
+        id: "booking-1",
+        status: "PENDING",
+      });
+      
       const res = await request(app)
         .post("/api/bookings")
         .set("Authorization", vendorAuth)
         .send({ serviceId: "service-1" });
 
       expect(res.status).toBe(403);
-      expect(res.body.message).toBe("Only customers can create bookings");
+      expect(res.body.message).toBe("Vendors cannot book their own services");
       expect(mockPrisma.booking.create).not.toHaveBeenCalled();
     });
   });

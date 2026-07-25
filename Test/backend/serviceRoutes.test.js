@@ -737,6 +737,7 @@ describe("service routes", () => {
           include: {
             user: {
               select: {
+                id: true,
                 name: true,
               },
             },
