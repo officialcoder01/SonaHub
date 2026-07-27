@@ -128,7 +128,7 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
           >
             <div className="flex items-center justify-between gap-4">
               <p className="text-lg font-extrabold tracking-tight text-blue-700">
-                Artisan Market
+                Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
               </p>
               <button
                 type="button"
