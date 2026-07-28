@@ -29,7 +29,7 @@ router.get("/categories", getCategories); // list all categories
 router.get("/:id", getServiceDetails); // fetch public details for a single service
 
 router.patch("/:id", requireAuth, updateServiceListing); // update a service by ID to become archieved (vendor only)
-router.put("/:id", requireAuth, editServiceListing); // edit a service by ID (vendor only)
+router.put("/:id", requireAuth, upload.array("images", 3), editServiceListing); // edit a service by ID (vendor only)
 
 router.get("/", listServices); // list all services for public listing
 
