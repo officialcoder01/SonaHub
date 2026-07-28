@@ -13,5 +13,10 @@ export const validateServiceFields = ({ title, description, price, categoryId })
     throw error;
   }
 
-  return parsedPrice;
+  return {
+    title: String(title),
+    description: String(description),
+    price: parsedPrice,
+    categoryId: String(categoryId),
+  };
 };
