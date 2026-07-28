@@ -12,6 +12,7 @@ import {
   listServices,
   getCategories,
   updateServiceListing,
+  editServiceListing,
 } from "../controllers/serviceController.js";
 import { requireAuth } from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/upload.js";
@@ -28,6 +29,8 @@ router.get("/categories", getCategories); // list all categories
 router.get("/:id", getServiceDetails); // fetch public details for a single service
 
 router.patch("/:id", requireAuth, updateServiceListing); // update a service by ID to become archieved (vendor only)
+router.put("/:id", requireAuth, editServiceListing); // edit a service by ID (vendor only)
+
 router.get("/", listServices); // list all services for public listing
 
 export default router;

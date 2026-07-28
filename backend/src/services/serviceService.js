@@ -33,7 +33,7 @@ export const getAllCategories = async () => {
 export const createService = async ({ userId, role, data, files = [] }) => {
   assertVendor(role, "Only vendors can create services");
 
-  const price = validateServiceFields(data);
+  const validatedData = validateServiceFields(data);
 
   const vendorProfile = await prisma.vendorProfile.findUnique({
     where: { userId },
@@ -48,10 +48,10 @@ export const createService = async ({ userId, role, data, files = [] }) => {
   const imageUrls = await uploadServiceImages(files);
   const serviceData = {
     vendorId: vendorProfile.id,
-    title: data.title,
-    description: data.description,
-    price,
-    categoryId: data.categoryId,
+    title: validatedData.title,
+    description: validatedData.description,
+    price: validatedData.price,
+    categoryId: validatedData.categoryId,
   };
 
   if (imageUrls.length > 0) {
@@ -130,6 +130,56 @@ export const updateService = async ({ serviceId, userId, role }) => {
     where: { id: serviceId },
     data: {
       isArchived: true,
+    },
+  });
+};
+
+export const editService = async ({ serviceId, userId, role, data, files = [] }) => {
+  assertVendor(role, "Only vendors can edit their services");
+
+  const service = await prisma.service.findUnique({
+    where: { id: serviceId, isArchived: false },
+    include: {
+      vendor: {
+        select: {
+          userId: true,
+        }
+      },
+    },
+  });
+
+  if (!service) {
+    const error = new Error("Service not found");
+    error.status = 404;
+    throw error;
+  }
+
+  if (service.vendor.userId !== userId) {
+    const error = new Error("You do not have permission to edit this service");
+    error.status = 403;
+    throw error;
+  }
+
+  const validatedData = validateServiceFields(data);
+  const imageUrls = await uploadServiceImages(files);
+  const serviceData = {
+    title: validatedData.title,
+    description: validatedData.description,
+    price: validatedData.price,
+    categoryId: validatedData.categoryId,
+  };
+
+  if (imageUrls.length > 0) {
+    serviceData.images = {
+      create: imageUrls.map((url) => ({ url })),
+    };
+  }
+
+  return prisma.service.update({
+    where: { id: serviceId },
+    data: serviceData,
+    include: {
+      images: true,
     },
   });
 };

@@ -3,6 +3,7 @@ import {
   getAllServices,
   getVendorServices,
   updateService,
+  editService,
   getAllCategories,
   getServiceDetailsById,
   pinServiceForVendor,
@@ -140,6 +141,23 @@ export const updateServiceListing = async (req, res) => {
   }
 };
 
+export const editServiceListing = async (req, res) => {
+  try {
+    const updatedService = await editService({
+      serviceId: req.params.id,
+      userId: req.user.id,
+      role: req.user.role,
+      data: req.body,
+      files: req.files,
+    });
+
+    res.status(200).json(updatedService);
+  } catch (err) {
+    res.status(err.status || 500).json({
+      message: err.message || "Unable to edit service",
+    });
+  }
+};
 
 // Retrieve all categories
 export const getCategories = async (req, res) => {
