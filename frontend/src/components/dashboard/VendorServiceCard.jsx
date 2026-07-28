@@ -44,13 +44,13 @@ export default function VendorServiceCard({
   };
 
   return (
-    <article className="flex min-h-[292px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
-      <div className="relative h-36 overflow-hidden bg-slate-100">
+    <article className="group flex h-full min-h-[282px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+      <div className="aspect-[4/3] overflow-hidden bg-slate-100">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={service.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
