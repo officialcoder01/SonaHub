@@ -1056,4 +1056,86 @@ describe("service routes", () => {
       expect(mockPrisma.service.update).not.toHaveBeenCalled();
     });
   });
+
+  describe("PUT /api/services/:id", () => {
+    test("should allow vendor owner to edit their service", async () => {
+      const service = {
+        id: "service-1",
+        vendorId: "vendor-1",
+        title: "Old Title",
+        description: "Old description",
+        price: 1500,
+        categoryId: "category-1",
+        isArchived: false,
+        vendor: {
+          userId: "user-1",
+        },
+      };
+
+      const updatedService = {
+        ...service,
+        title: "New Title",
+        description: "Updated description",
+        price: 2000,
+        categoryId: "category-2",
+      };
+
+      mockPrisma.service.findUnique.mockResolvedValue(service);
+      mockPrisma.service.update.mockResolvedValue(updatedService);
+
+      const res = await request(app)
+        .put("/api/services/service-1")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }))
+        .send({
+          title: "New Title",
+          description: "Updated description",
+          price: "2000",
+          categoryId: "category-2",
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(updatedService);
+      expect(mockPrisma.service.findUnique).toHaveBeenCalledWith({
+        where: { id: "service-1", isArchived: false },
+        include: { vendor: { select: { userId: true } } },
+      });
+      expect(mockPrisma.service.update).toHaveBeenCalledWith({
+        where: { id: "service-1" },
+        data: {
+          title: "New Title",
+          description: "Updated description",
+          price: 2000,
+          categoryId: "category-2",
+        },
+        include: { images: true },
+      });
+    });
+
+    test("should forbid vendor who does not own the service from editing", async () => {
+      const service = {
+        id: "service-1",
+        vendorId: "vendor-99",
+        isArchived: false,
+        vendor: {
+          userId: "user-99",
+        },
+      };
+
+      mockPrisma.service.findUnique.mockResolvedValue(service);
+
+      const res = await request(app)
+        .put("/api/services/service-1")
+        .set("Authorization", authHeader({ id: "user-1", role: "VENDOR" }))
+        .send({
+          title: "Hacked Title",
+          description: "Malicious edit",
+          price: "100",
+          categoryId: "category-x",
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.message).toBe("You do not have permission to edit this service");
+      expect(mockPrisma.service.update).not.toHaveBeenCalled();
+    });
+  });
 });
