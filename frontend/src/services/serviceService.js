@@ -98,6 +98,28 @@ export const unpinMyService = async (serviceId, token) => {
   return handleResponse(response);
 };
 
+export const updateService = async (serviceId, data, token) => {
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("description", data.description);
+  formData.append("price", data.price);
+  formData.append("categoryId", data.categoryId);
+
+  if (data.images && data.images.length > 0) {
+    data.images.forEach((file) => {
+      formData.append("images", file);
+    });
+  }
+
+  const response = await fetch(`${API_URL}/${serviceId}`, {
+    method: "PUT",
+    headers: authHeaders(token),
+    body: formData,
+  });
+
+  return handleResponse(response);
+};
+
 export const deleteService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}`, {
     method: "PATCH",

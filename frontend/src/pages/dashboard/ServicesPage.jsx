@@ -129,8 +129,7 @@ export default function ServicesPage() {
   };
 
   const handleEditService = (service) => {
-    // Edit routing is intentionally left compatible with the current implementation.
-    console.log("Edit service:", service.id);
+    navigate(`/dashboard/services/${service.id}/edit`);
   };
 
   const handleToggleFeatured = async (service) => {

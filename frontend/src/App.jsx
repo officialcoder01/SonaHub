@@ -6,6 +6,7 @@ import Register from "./pages/auth/Register";
 import Home from "./pages/Home";
 import Market from "./pages/Market";
 import CreateService from "./pages/dashboard/CreateService";
+import EditService from "./pages/dashboard/EditService";
 import ServiceDetailsPage from "./pages/ServiceDetailsPage";
 import CustomerBookingsPage from "./pages/CustomerBookingsPage";
 import VendorDashboardLayout from "./layouts/VendorDashboardLayout";
@@ -48,6 +49,7 @@ export default function App() {
           >
             <Route index element={<OverviewPage />} />
             <Route path="services" element={<ServicesPage />} />
+            <Route path="services/:id/edit" element={<EditService />} />
             <Route path="create-service" element={<CreateService />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="reviews" element={<ReviewsPage />} />

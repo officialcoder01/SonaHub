@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import ServiceForm from "../../components/service/ServiceForm";
+import { createService } from "../../services/serviceService";
 
 export default function CreateService() {
   const navigate = useNavigate();
 
-  const handleSuccess = (service) => {
+  const handleSuccess = () => {
     navigate("/dashboard/services");
   };
 
@@ -20,7 +21,7 @@ export default function CreateService() {
             Add the details customers need to understand what you offer.
           </p>
         </div>
-        <ServiceForm onSuccess={handleSuccess} />
+        <ServiceForm onSuccess={handleSuccess} submitAction={createService} />
       </section>
     </div>
   );
