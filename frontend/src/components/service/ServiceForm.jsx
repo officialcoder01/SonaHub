@@ -35,8 +35,7 @@ export default function ServiceForm({
         const response = await getCategories();
         setCategories(response.categories);
       } catch (err) {
-        console.error("Failed to fetch categories:", err);
-        setError("Failed to load categories");
+        setError(err.message || "Failed to load categories");
       } finally {
         setIsLoadingCategories(false);
       }
