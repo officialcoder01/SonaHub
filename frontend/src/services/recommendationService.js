@@ -1,14 +1,6 @@
-const API_URL = "http://localhost:3000/api/recommendations";
+import { API_BASE_URL, handleResponse } from "../config/api";
 
-const handleResponse = async (response) => {
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.message || "Request failed");
-    };
-
-    return result;
-};
+const API_URL = `${API_BASE_URL}/recommendations`;
 
 export const getTopRatedVendors = async () => {
     const response = await fetch(`${API_URL}/top-rated-vendors`);

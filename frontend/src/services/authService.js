@@ -1,17 +1,9 @@
-const API_BASE_URL = "http://localhost:3000/api/auth";
+import { API_BASE_URL, handleResponse } from "../config/api";
 
-const handleResponse = async (response) => {
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || "Request failed");
-  }
-
-  return result;
-};
+const AUTH_URL = `${API_BASE_URL}/auth`;
 
 export const registerUser = async (data) => {
-  const response = await fetch(`${API_BASE_URL}/register`, {
+  const response = await fetch(`${AUTH_URL}/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -23,7 +15,7 @@ export const registerUser = async (data) => {
 };
 
 export const loginUser = async (data) => {
-  const response = await fetch(`${API_BASE_URL}/login`, {
+  const response = await fetch(`${AUTH_URL}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

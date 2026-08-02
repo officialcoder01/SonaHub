@@ -1,18 +1,6 @@
-const REVIEWS_API_URL = "http://localhost:3000/api/reviews";
+import { API_BASE_URL, handleResponse, authHeaders } from "../config/api";
 
-// Shared response handler — parses JSON and surfaces meaningful error messages.
-const handleResponse = async (response) => {
-  const contentType = response.headers.get("content-type") || "";
-  const result = contentType.includes("application/json")
-    ? await response.json()
-    : { message: await response.text() };
-
-  if (!response.ok) {
-    throw new Error(result.message || result.error || "Review request failed");
-  }
-
-  return result;
-};
+const REVIEWS_API_URL = `${API_BASE_URL}/reviews`;
 
 /**
  * Submits a new review for a completed booking.
@@ -26,7 +14,7 @@ export const submitReview = async ({ bookingId, rating, comment }, token) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...authHeaders(token),
     },
     body: JSON.stringify({ bookingId, rating, comment }),
   });

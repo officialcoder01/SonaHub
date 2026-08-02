@@ -1,21 +1,9 @@
-const API_BASE_URL = "http://localhost:3000/api/vendors";
-
-const handleResponse = async (response) => {
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.message || "Request failed");
-  }
-
-  return result;
-};
-
-const authHeaders = (token) => ({
-  Authorization: `Bearer ${token}`,
-});
+import { API_BASE_URL, authHeaders, handleResponse } from "../config/api";
+  
+const API_URL = `${API_BASE_URL}/vendors`;
 
 export const getMyProfile = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/me`, {
+  const response = await fetch(`${API_URL}/me`, {
     headers: authHeaders(token),
   });
 
@@ -23,19 +11,19 @@ export const getMyProfile = async (token) => {
 };
 
 export const getVendors = async () => {
-  const response = await fetch(API_BASE_URL);
+  const response = await fetch(API_URL);
   return handleResponse(response);
 };
 
 // Fetch a single vendor's public profile by vendor profile ID.
 // Returns: { vendorProfile: { ...vendor, services, reviews, reviewStat } }
 export const getVendorById = async (vendorId) => {
-  const response = await fetch(`${API_BASE_URL}/${vendorId}`);
+  const response = await fetch(`${API_URL}/${vendorId}`);
   return handleResponse(response);
 };
 
 export const createProfile = async (data, token) => {
-  const response = await fetch(`${API_BASE_URL}/profile`, {
+  const response = await fetch(`${API_URL}/profile`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

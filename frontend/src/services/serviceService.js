@@ -1,22 +1,6 @@
-const API_ROOT_URL = "http://localhost:3000/api";
-const API_URL = `${API_ROOT_URL}/services`;
+import { API_BASE_URL, handleResponse, authHeaders } from "../Config/api";
 
-const handleResponse = async (response) => {
-  const contentType = response.headers.get("content-type") || "";
-  const result = contentType.includes("application/json")
-    ? await response.json()
-    : { message: await response.text() };
-
-  if (!response.ok) {
-    throw new Error(result.message || result.error || "An error occurred");
-  }
-
-  return result;
-};
-
-const authHeaders = (token) => ({
-  Authorization: `Bearer ${token}`,
-});
+const API_URL = `${API_BASE_URL}/services`;
 
 export const getCategories = async () => {
   const response = await fetch(`${API_URL}/categories`);
@@ -65,7 +49,7 @@ export const createService = async (data, token) => {
 
     const response = await fetch(API_URL, {
         method: "POST",
-        headers: authHeaders(token),
+        headers: { ...authHeaders(token) },
         body: formData,
     });
 
@@ -74,7 +58,7 @@ export const createService = async (data, token) => {
 
 export const getMyServices = async (token) => {
     const response = await fetch(`${API_URL}/my`, {
-        headers: authHeaders(token),
+        headers: { ...authHeaders(token) },
     });
 
     return handleResponse(response);
@@ -83,7 +67,7 @@ export const getMyServices = async (token) => {
 export const pinMyService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}/pin`, {
     method: "PATCH",
-    headers: authHeaders(token),
+    headers: { ...authHeaders(token) },
   });
 
   return handleResponse(response);
@@ -92,7 +76,7 @@ export const pinMyService = async (serviceId, token) => {
 export const unpinMyService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}/unpin`, {
     method: "PATCH",
-    headers: authHeaders(token),
+    headers: { ...authHeaders(token) },
   });
 
   return handleResponse(response);
@@ -113,7 +97,7 @@ export const updateService = async (serviceId, data, token) => {
 
   const response = await fetch(`${API_URL}/${serviceId}`, {
     method: "PUT",
-    headers: authHeaders(token),
+    headers: { ...authHeaders(token) },
     body: formData,
   });
 
@@ -123,7 +107,7 @@ export const updateService = async (serviceId, data, token) => {
 export const deleteService = async (serviceId, token) => {
   const response = await fetch(`${API_URL}/${serviceId}`, {
     method: "PATCH",
-    headers: authHeaders(token),
+    headers: { ...authHeaders(token) },
   });
 
   return handleResponse(response);

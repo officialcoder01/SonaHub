@@ -1,25 +1,10 @@
-const API_BASE_URL = "http://localhost:3000/api/vendor/bookings";
-const CUSTOMER_API_BASE_URL = "http://localhost:3000/api/bookings";
+import { API_BASE_URL, handleResponse, authHeaders } from "../config/api.js";
 
-const handleResponse = async (response) => {
-  const contentType = response.headers.get("content-type") || "";
-  const result = contentType.includes("application/json")
-    ? await response.json()
-    : { message: await response.text() };
-
-  if (!response.ok) {
-    throw new Error(result.message || result.error || "Booking request failed");
-  }
-
-  return result;
-};
-
-const authHeaders = (token) => ({
-  Authorization: `Bearer ${token}`,
-});
+const VENDOR_BOOKINGS_URL = `${API_BASE_URL}/vendor/bookings`;
+const CUSTOMER_BOOKINGS_URL = `${API_BASE_URL}/bookings`;
 
 export const getVendorBookings = async (token) => {
-  const response = await fetch(API_BASE_URL, {
+  const response = await fetch(VENDOR_BOOKINGS_URL, {
     headers: authHeaders(token),
   });
 
@@ -27,7 +12,7 @@ export const getVendorBookings = async (token) => {
 };
 
 export const acceptVendorBooking = async (bookingId, token) => {
-  const response = await fetch(`${API_BASE_URL}/${bookingId}/accept`, {
+  const response = await fetch(`${VENDOR_BOOKINGS_URL}/${bookingId}/accept`, {
     method: "PATCH",
     headers: authHeaders(token),
   });
@@ -36,7 +21,7 @@ export const acceptVendorBooking = async (bookingId, token) => {
 };
 
 export const rejectVendorBooking = async (bookingId, token) => {
-  const response = await fetch(`${API_BASE_URL}/${bookingId}/reject`, {
+  const response = await fetch(`${VENDOR_BOOKINGS_URL}/${bookingId}/reject`, {
     method: "PATCH",
     headers: authHeaders(token),
   });
@@ -45,7 +30,7 @@ export const rejectVendorBooking = async (bookingId, token) => {
 };
 
 export const completeVendorBooking = async (bookingId, token) => {
-  const response = await fetch(`${API_BASE_URL}/${bookingId}/complete`, {
+  const response = await fetch(`${VENDOR_BOOKINGS_URL}/${bookingId}/complete`, {
     method: "PATCH",
     headers: authHeaders(token),
   });
@@ -63,7 +48,7 @@ export const completeVendorBooking = async (bookingId, token) => {
  * @param {string} token - Customer auth token.
  */
 export const createBooking = async (bookingData, token) => {
-  const response = await fetch(CUSTOMER_API_BASE_URL, {
+  const response = await fetch(CUSTOMER_BOOKINGS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -80,7 +65,7 @@ export const createBooking = async (bookingData, token) => {
  * @param {string} token - Customer auth token.
  */
 export const getCustomerBookings = async (token) => {
-  const response = await fetch(`${CUSTOMER_API_BASE_URL}/my`, {
+  const response = await fetch(`${CUSTOMER_BOOKINGS_URL}/my`, {
     headers: authHeaders(token),
   });
 
@@ -93,7 +78,7 @@ export const getCustomerBookings = async (token) => {
  * @param {string} token - Customer auth token.
  */
 export const cancelBooking = async (bookingId, token) => {
-  const response = await fetch(`${CUSTOMER_API_BASE_URL}/${bookingId}/cancel`, {
+  const response = await fetch(`${CUSTOMER_BOOKINGS_URL}/${bookingId}/cancel`, {
     method: "PATCH",
     headers: authHeaders(token),
   });
