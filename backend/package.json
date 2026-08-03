@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "test": "cross-env NODE_ENV=test jest --runInBand"
   },
