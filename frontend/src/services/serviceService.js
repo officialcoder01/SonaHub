@@ -1,4 +1,4 @@
-import { API_BASE_URL, handleResponse, authHeaders } from "../Config/api";
+import { API_BASE_URL, handleResponse, authHeaders } from "../config/api";
 
 const API_URL = `${API_BASE_URL}/services`;
 
