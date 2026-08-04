@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 import AuthLayout from "../../layouts/AuthLayout";
+import logo from "../../assets/images/logo.png";
 
 const initialFormData = {
   email: "",
@@ -48,9 +49,9 @@ export default function Login() {
         <div className="mb-7 text-center">
           <Link
             to="/"
-            className="text-2xl font-extrabold tracking-tight text-blue-700"
+            className="flex items-center justify-center"
           >
-            Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
+            <img src={logo} alt="SonaHub Logo" className="h-8 w-auto mr-2 inline-block" />
           </Link>
           <h1 className="mt-5">Welcome back</h1>
           <p className="mt-2">Access your marketplace account.</p>
