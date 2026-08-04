@@ -152,23 +152,30 @@ export const getVendorProfileByVendorId = async (vendorId) => {
 // Retrieve all vendors for public listing
 export const getAllVendors = async () => {
   const vendors = await prisma.vendorProfile.findMany({
-    include: {
+    select: {
+      id: true,
+      businessName: true,
+      location: true,
+      isVerified: true,
       user: {
         select: {
           name: true,
-        },
+        }
       },
       reviews: true,
+      _count: {
+        select: {
+          bookings: {
+            where: { status: "COMPLETED" }
+          }
+        },
+      },
     },
   });
 
-  const vendorsWithReviewStats = vendors.map((vendor) => {
-    const reviewStat = calculateReviewStats(vendor.reviews);
-    return {
-      ...vendor,
-      reviewStat
-    };
-  })
-
-  return vendorsWithReviewStats;
+ return vendors.map((vendor) => ({
+    ...vendor,
+    completedJobs: vendor._count.bookings,
+    reviewStats: calculateReviewStats(vendor.reviews),
+  }));
 };
