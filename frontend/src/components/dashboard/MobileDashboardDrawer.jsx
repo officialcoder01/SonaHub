@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { NavLink, Link } from "react-router-dom";
+import { X } from "lucide-react";
+import logo from "../../assets/images/logo.png";
 import { dashboardNavigationItems } from "./dashboardNavigation";
 
 export default function MobileDashboardDrawer({ isOpen, onClose }) {
@@ -33,11 +35,11 @@ export default function MobileDashboardDrawer({ isOpen, onClose }) {
           <div>
             <Link
               to="/"
-              className="shrink-0 text-lg font-extrabold tracking-tight sm:text-2xl"
+              className="flex items-center"
             >
-              <span className="text-white">Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span></span>
+              <img src={logo} alt="SonaHub Logo" className="h-8 w-auto" />
             </Link>
-            <p className="mt-1 text-xs font-medium text-blue-200">
+            <p className="mt-3 text-xs font-medium text-blue-200">
               Vendor workspace
             </p>
           </div>
@@ -47,7 +49,7 @@ export default function MobileDashboardDrawer({ isOpen, onClose }) {
             aria-label="Close dashboard navigation"
             onClick={onClose}
           >
-            X
+            <X className="h-5 w-5" />
           </button>
         </div>
 

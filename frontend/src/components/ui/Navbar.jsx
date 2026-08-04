@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
+import { X } from "lucide-react";
+import logo from "../../assets/images/logo.png";
 
 // This component is intentionally prop-driven so pages can decide
 // what navigation state to show without hiding that logic here.
@@ -52,10 +54,10 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
         <div className="mx-auto grid min-h-16 w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:px-6 lg:min-h-20 lg:px-8">
           <Link
             to="/"
-            className="text-2xl font-extrabold tracking-tight text-blue-700"
+            className="flex items-center gap-2"
             onClick={closeMenu}
           >
-            Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
+            <img src={logo} alt="SonaHub Logo" className="h-8 w-auto" />
           </Link>
 
           <div className="hidden justify-center lg:flex">
@@ -127,16 +129,14 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
             className="absolute right-0 top-0 flex h-full w-72 max-w-[85vw] flex-col border-l border-slate-200 bg-white p-5 shadow-xl"
           >
             <div className="flex items-center justify-between gap-4">
-              <p className="text-lg font-extrabold tracking-tight text-blue-700">
-                Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span>
-              </p>
+              <img src={logo} alt="SonaHub Logo" className="h-8 w-auto" />
               <button
                 type="button"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-label="Close navigation menu"
                 onClick={closeMenu}
               >
-                X
+                <X className="h-5 w-5" />
               </button>
             </div>
             <div className="mt-8 space-y-1">

@@ -1,4 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
+import logo from "../../assets/images/logo.png";
 import { dashboardNavigationItems } from "./dashboardNavigation";
 
 export default function DashboardSidebar() {
@@ -14,11 +15,11 @@ export default function DashboardSidebar() {
       <div className="border-b border-slate-800 px-5 py-5">
         <Link
           to="/"
-          className="shrink-0 text-lg font-extrabold tracking-tight sm:text-2xl"
+          className="flex items-center"
         >
-          <span className="text-white">Sona<span className="hidden min-[390px]:inline text-red-500">Hub</span></span>
+          <img src={logo} alt="SonaHub Logo" className="h-8 w-auto" />
         </Link>
-        <p className="mt-1 text-xs font-medium text-blue-200">
+        <p className="mt-3 text-xs font-medium text-blue-200">
           Vendor workspace
         </p>
       </div>
