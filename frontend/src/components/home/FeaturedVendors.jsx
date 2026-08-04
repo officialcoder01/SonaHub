@@ -34,10 +34,10 @@ const getInitials = (name = "") =>
 const getBio = (vendor) =>
   vendor.bio || vendor.specialization || vendor.category?.name || "Professional Artisan";
 
-const getRating = (vendor) => Number(vendor?.reviewStat?.averageRating || 0);
+const getRating = (vendor) => Number(vendor?.reviewStats?.averageRating || 0);
 
-const getCompletedJobs = (vendor, index) =>
-  vendor.completedJobs || vendor.jobsCompleted || 7 + index;
+const getCompletedJobs = (vendor) =>
+  vendor.completedJobs || vendor.jobsCompleted ||  0;
 
 const getResponseTime = (vendor, index) =>
   vendor.responseTime || `${index % 2 === 0 ? 2 : 1} hours`;
@@ -100,7 +100,7 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
         >
           {vendors.map((vendor, index) => {
             const vendorName = getVendorName(vendor);
-            const rating = getRating(vendor, index);
+            const rating = getRating(vendor);
 
             return (
               <motion.article
@@ -133,7 +133,7 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
                     <Briefcase className="h-3 w-3 text-blue-600" aria-hidden="true" />
                     <span>
                       <strong className="block text-[11px] text-slate-700">
-                        {getCompletedJobs(vendor, index)}
+                        {getCompletedJobs(vendor)}
                       </strong>
                       Completed Jobs
                     </span>

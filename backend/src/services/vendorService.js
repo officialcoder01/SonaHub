@@ -175,7 +175,7 @@ export const getAllVendors = async () => {
 
  return vendors.map((vendor) => ({
     ...vendor,
-    completedJobs: vendor._count.bookings,
+    completedJobs: vendor._count?.bookings,
     reviewStats: calculateReviewStats(vendor.reviews),
   }));
 };
