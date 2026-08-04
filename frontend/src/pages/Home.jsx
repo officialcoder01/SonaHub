@@ -159,16 +159,16 @@ export default function Home() {
 
         <HowItWorks />
 
-        <FeaturedVendors
-          vendors={featuredVendors}
-          isLoading={isLoading.vendors}
-          error={errors.vendors}
-        />
-
         <TopRatedArtisans
           vendors={topRatedVendors}
           isLoading={isLoading.topRatedVendors}
           error={errors.topRatedVendors}
+        />
+
+        <FeaturedVendors
+          vendors={featuredVendors}
+          isLoading={isLoading.vendors}
+          error={errors.vendors}
         />
 
         <CTASection />
