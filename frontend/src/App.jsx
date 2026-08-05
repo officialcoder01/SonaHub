@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/auth/Login";
@@ -19,10 +20,21 @@ import SettingsPage from "./pages/dashboard/SettingsPage";
 import VendorProfilePage from "./pages/dashboard/VendorProfilePage";
 import VendorPublicProfilePage from "./pages/VendorProfilePage";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/market" element={<Market />} />
