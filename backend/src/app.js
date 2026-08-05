@@ -12,8 +12,101 @@ import recommendationRoutes from "./routes/recommendationRoute.js";
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 
-app.use(cors());
+// Detect whether the server is running in its deployed configuration.
+const isProduction = process.env.NODE_ENV === 'production';
+function sanitizeOriginValue(origin) {
+    return origin.trim().replace(/^['"]+|['"]+$/g, '');
+}
+
+// Allow one or more frontend origins to be supplied from the environment.
+const configuredOrigins = (process.env.FRONTEND_ORIGIN ?? '')
+    .split(',')
+    .map((origin) => sanitizeOriginValue(origin))
+    .filter(Boolean);
+// Include configured production origins plus the local dev URLs we commonly use.
+const allowedOrigins = [
+    ...configuredOrigins,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+].filter(Boolean);
+
+function normalizeOrigin(origin) {
+    // Reduce origins to a stable form so trailing slashes or full URLs do not break matching.
+    if (!origin) {
+        return null;
+    }
+
+    const cleanedOrigin = sanitizeOriginValue(origin);
+
+    try {
+        return new URL(cleanedOrigin).origin;
+    } catch {
+        return cleanedOrigin.replace(/\/+$/, '');
+    }
+}
+
+function isAllowedOrigin(origin) {
+    // Accept same-origin/server-side requests and approved browser origins.
+    if (!origin) {
+        return true;
+    }
+
+    // Compare normalized origins so environment formatting differences do not cause false rejections.
+    const normalizedOrigin = normalizeOrigin(origin);
+    const normalizedAllowedOrigins = allowedOrigins
+        .map((allowedOrigin) => normalizeOrigin(allowedOrigin))
+        .filter(Boolean);
+
+    if (normalizedAllowedOrigins.includes(normalizedOrigin)) {
+        return true;
+    }
+
+    if (!isProduction) {
+        try {
+            // In development, allow any localhost-style origin regardless of port.
+            const { hostname } = new URL(normalizedOrigin);
+            return (
+                hostname === 'localhost' ||
+                hostname === '127.0.0.1' ||
+                hostname.endsWith('.localhost')
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+if (isProduction) {
+    // Trust the reverse proxy in production so secure cookies work correctly behind Vercel.
+    app.set('trust proxy', 1);
+}
+
 app.use(express.json());
+
+app.use(cors({
+    origin(origin, callback) {
+        // Let CORS decide request-by-request whether the browser origin is allowed.
+        if (isAllowedOrigin(origin)) {
+            callback(null, true);
+            return;
+        }
+
+        console.error('Blocked by CORS:', {
+            requestOrigin: origin,
+            normalizedRequestOrigin: normalizeOrigin(origin),
+            allowedOrigins: allowedOrigins.map((allowedOrigin) => normalizeOrigin(allowedOrigin)),
+        });
+        callback(new Error('Origin not allowed by CORS'));
+    },
+    credentials: true,
+}));
+
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (req, res) => {
