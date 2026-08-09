@@ -1,5 +1,8 @@
-// import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SocialIcon } from "react-social-icons";
+import "react-social-icons/x";
+import "react-social-icons/github";
+import "react-social-icons/linkedin";
 
 const footerColumns = [
   {
@@ -37,13 +40,6 @@ const footerColumns = [
   },
 ];
 
-const socialLinks = [
-  { label: "Facebook", icon: "f" },
-  { label: "Twitter", icon: "t" },
-  { label: "Instagram", icon: "i" },
-  { label: "LinkedIn", icon: "l" },
-];
-
 export default function Footer() {
   return (
     <footer className="relative left-1/2 w-screen -translate-x-1/2 bg-slate-950 px-4 py-10 text-slate-300 sm:px-6 lg:px-8">
@@ -72,20 +68,24 @@ export default function Footer() {
             © {new Date().getFullYear()} Artisan Market. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
-            {socialLinks.map((social) => {
-              const Icon = social.icon;
-
-              return (
-                <button
-                  key={social.label}
-                  type="button"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
-                  aria-label={social.label}
-                >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                </button>
-              );
-            })}
+            <SocialIcon
+              url="https://x.com/yourprofile"
+              bgColor="#333"
+              fgColor="#fff"
+              style={{ height: 24, width: 24 }}
+            />
+            <SocialIcon
+              url="https://github.com/officialcoder01"
+              bgColor="#333"
+              fgColor="#fff"
+              style={{ height: 24, width: 24 }}
+            />
+            <SocialIcon
+              url="https://www.linkedin.com/in/zion-musa-bb251833b/"
+              bgColor="#0077B5"
+              fgColor="#fff"
+              style={{ height: 24, width: 24 }}
+            />
           </div>
         </div>
       </div>
