@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/authRouter.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
@@ -89,6 +90,18 @@ if (isProduction) {
 
 app.use(express.json());
 
+// Strict rules for authentication endpoint
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
+    handler: (req, res) => {
+        res.status(429).json({
+            success: false,
+            message: "Too many login attempts, please try again later."
+        });
+    }
+})
+
 app.use(cors({
     origin(origin, callback) {
         // Let CORS decide request-by-request whether the browser origin is allowed.
@@ -124,7 +137,7 @@ app.get("/", (req, res) => {
 });
 
 // API routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", loginLimiter, authRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/vendors", vendorRoutes);
 app.use("/api/bookings", bookingRoutes);
