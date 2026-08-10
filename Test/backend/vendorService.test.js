@@ -112,7 +112,11 @@ describe("vendorService", () => {
         services: {
           where: {
             isArchived: false,
-          }
+          },
+          include: {
+            images: true,
+            category: true,
+          },
         },
         reviews: true,
         _count: {
@@ -139,7 +143,11 @@ describe("vendorService", () => {
         services: {
           where: {
             isArchived: false,
-          }
+          },
+          include: {
+            images: true,
+            category: true,
+          },
         },
         reviews: true,
         _count: {
