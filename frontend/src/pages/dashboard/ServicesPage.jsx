@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardEmptyState from "../../components/dashboard/DashboardEmptyState";
+import DeleteServiceDialog from "../../components/dashboard/DeleteServiceDialog";
 import ServiceCardSkeleton from "../../components/dashboard/ServiceCardSkeleton";
 import VendorServiceCard from "../../components/dashboard/VendorServiceCard"
 import { useAuth } from "../../context/AuthContext";
@@ -247,48 +248,13 @@ export default function ServicesPage() {
         </>
       ) : null}
 
-      {serviceToDelete ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-slate-950/50 px-4 py-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-service-title"
-          onClick={closeDeleteModal}
-        >
-          <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
-              Delete service
-            </p>
-            <h2 id="delete-service-title" className="mt-2">
-              Are you sure?
-            </h2>
-            <p className="mt-4 text-sm">
-              Do you want to delete "{serviceToDelete.title}"? This action cannot be undone.
-            </p>
-
-            {deleteError ? <p className="form-error mt-4">{deleteError}</p> : null}
-
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={closeDeleteModal}
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={confirmDeleteService}
-                disabled={isDeleting}
-              >
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <DeleteServiceDialog
+        service={serviceToDelete}
+        isDeleting={isDeleting}
+        error={deleteError}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDeleteService}
+      />
     </div>
   );
 }
