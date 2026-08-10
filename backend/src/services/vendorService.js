@@ -60,6 +60,8 @@ export const getVendorProfileByUserId = async (userId, role) => {
     throw error;
   }
 
+  const pinnedServices = await vendor.services.filter((service) => service.isPinned);
+
   // 2. Fetch specific booking status counts efficiently in parallel
   const statusCounts = await prisma.booking.groupBy({
     by: ["status"],
@@ -80,6 +82,7 @@ export const getVendorProfileByUserId = async (userId, role) => {
   // 5. Return clean structured payload without data bloat
   return {
     ...vendorData,
+    pinnedServices,
     reviews,
     servicesCount: _count.services,
     totalBookingsCount: _count.bookings,
