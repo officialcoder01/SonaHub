@@ -43,6 +43,10 @@ export const getVendorProfileByUserId = async (userId, role) => {
     include: {
       services: {
         where: { isArchived: false },
+        include: {
+          images: true,
+          category: true,
+        },
       },
       reviews: true, // Kept to calculate vendorReviewStat metrics
       _count: {
