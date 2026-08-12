@@ -18,6 +18,7 @@ import ReviewsPage from "./pages/dashboard/ReviewsPage";
 import ServicesPage from "./pages/dashboard/ServicesPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import VendorProfilePage from "./pages/dashboard/VendorProfilePage";
+import EditVendorProfile from "./pages/dashboard/EditVendorProfile";
 import VendorPublicProfilePage from "./pages/VendorProfilePage";
 
 function ScrollToTop() {
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="reviews" element={<ReviewsPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="vendor-profile" element={<VendorProfilePage />} />
+            <Route path="profile/edit" element={<EditVendorProfile />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
