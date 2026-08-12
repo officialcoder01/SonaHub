@@ -4,6 +4,9 @@ const request = require("supertest");
 const mockPrisma = {
   vendorProfile: {
     findUnique: jest.fn(),
+    create: jest.fn(),
+    findMany: jest.fn(),
+    update: jest.fn(),
   },
 };
 
@@ -166,4 +169,58 @@ describe("vendor routes", () => {
       expect(mockPrisma.vendorProfile.findUnique).not.toHaveBeenCalledWith();
     })
   })
+
+  describe("PUT /api/vendors/profile", () => {
+    test("should successfully update vendor profile", async () => {
+      const token = jwt.sign({ id: "user-1", role: "VENDOR" }, process.env.JWT_SECRET);
+
+      const oldProfile = {
+        id: "profile-1",
+        userId: "user-1",
+        businessName: "Jane Events",
+        bio: "Event Planner",
+        location: "Lagos",
+      };
+
+      const updatedProfile = {
+        businessName: "Jane Events Updated",
+        bio: "Updated Event Planner",
+        location: "Abuja",
+      };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(oldProfile);
+      mockPrisma.vendorProfile.update.mockResolvedValue(updatedProfile);
+
+      const res = await request(app)
+        .put("/api/vendors/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatedProfile);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({ message: "Vendor profile updated successfully", vendorProfile: updatedProfile });
+      expect(mockPrisma.vendorProfile.update).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+        data: updatedProfile
+      });
+    });
+
+    test("should fail if unathorize user tries to update profile", async () => {
+      const token = jwt.sign({ id: "user-1", role: "CUSTOMER" }, process.env.JWT_SECRET);
+
+      const updatedProfile = {
+        id: "profile-1",
+        businessName: "Jane Events",
+        bio: "Event Planner",
+        location: "Lagos",
+      };
+
+      const res = await request(app)
+        .put("/api/vendors/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send(updatedProfile);
+
+      expect(res.status).toBe(403);
+      expect(res.body).toEqual({ message: "Only authenticated vendor can edit their profile" });
+    });
+  });
 });
