@@ -4,7 +4,7 @@ import {
   CalendarCheck,
   Star,
   BarChart3,
-  Store,
+  UserRound,
   Settings,
   MessageSquare,
 } from "lucide-react";
@@ -30,7 +30,7 @@ export const dashboardNavigationItems = [
   { label: "Bookings", to: "/dashboard/bookings", icon: CalendarCheck },
   { label: "Reviews", to: "/dashboard/reviews", icon: Star },
   { label: "Analytics", to: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Vendor Profile", to: "/dashboard/vendor-profile", icon: Store },
+  { label: "Vendor Profile", to: "/dashboard/vendor-profile", icon: UserRound },
   { label: "Settings", to: "/dashboard/settings", icon: Settings },
   { label: "Messages", to: "/dashboard/messages", icon: MessageSquare, comingSoon: true },
 ];
