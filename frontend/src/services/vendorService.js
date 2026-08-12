@@ -34,3 +34,16 @@ export const createProfile = async (data, token) => {
 
   return handleResponse(response);
 };
+
+export const updateProfile = async (data, token) => {
+  const response = await fetch(`${API_URL}/profile`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(token),
+    },
+    body: JSON.stringify(data),
+  });
+
+  return handleResponse(response);
+};
