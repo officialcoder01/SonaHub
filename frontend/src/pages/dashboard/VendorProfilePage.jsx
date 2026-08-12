@@ -196,7 +196,6 @@ export default function VendorProfilePage() {
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Featured services</p>
-              <h2 className="mt-1">Services highlighted on your public profile</h2>
             </div>
             {featuredServices.length ? (
               <div className="-mx-5 mt-5 flex gap-4 overflow-x-auto px-5 pb-2 sm:-mx-6 sm:px-6">
