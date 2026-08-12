@@ -57,15 +57,13 @@ export default function VendorProfileManagementHeader({ profile }) {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row lg:justify-end">
-          {/* Profile updates have no existing API or edit form, so this avoids a non-working flow. */}
-          <button
+          <Link
+            to="/dashboard/profile/edit"
             type="button"
-            className="btn-secondary w-full cursor-not-allowed opacity-60 sm:w-auto"
-            disabled
-            title="Profile editing is not available yet"
+            className="btn-secondary w-full opacity-60 sm:w-auto"
           >
             Edit Profile
-          </button>
+          </Link>
           {profile?.id ? (
             <Link to={`/vendors/${profile.id}`} className="btn-primary w-full gap-2 sm:w-auto">
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
