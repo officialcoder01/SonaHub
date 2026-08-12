@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import naijaStateLocalGovernment from "naija-state-local-government";
 
 const initialFormData = {
@@ -13,7 +13,6 @@ const stateOptions = naijaStateLocalGovernment.states();
 
 export default function VendorProfileForm({
   token,
-  onProfileCreated,
   onSuccess,
   submitAction,
   submitLabel = "Save Profile",

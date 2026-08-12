@@ -183,7 +183,7 @@ export default function VendorProfilePage() {
 
       {!isLoading && !error && !profile ? (
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <VendorProfileForm token={token} onProfileCreated={loadProfile} />
+          <VendorProfileForm token={token} onSuccess={loadProfile} />
         </section>
       ) : null}
 
