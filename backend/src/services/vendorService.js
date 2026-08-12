@@ -33,6 +33,36 @@ export const createVendorProfile = async ({
   });
 };
 
+// Update vendor profile for the authenticated user (private endpoint for vendors only)
+export const updateVendorProfile = async ({
+  role,
+  userId,
+  businessName,
+  bio,
+  location,
+}) => {
+  assertVendor(role, "Only authenticated vendor can edit their profile");
+  
+  const vendor = await prisma.vendorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!vendor) {
+    const error = new Error("Vendor profile not found");
+    error.status = 404;
+    throw error;
+  }
+
+  return prisma.vendorProfile.update({
+    where: { userId },
+    data: {
+      businessName,
+      bio,
+      location,
+    },
+  });
+};
+
 // Retrieve vendor profile by user ID (private endpoint for vendors only)
 export const getVendorProfileByUserId = async (userId, role) => {
   assertVendor(role, "Only vendors can access their vendor profile");

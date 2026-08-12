@@ -1,5 +1,6 @@
 import {
   createVendorProfile,
+  updateVendorProfile,
   getVendorProfileByUserId,
   getVendorProfileByVendorId,
   getAllVendors,
@@ -22,6 +23,27 @@ export const createProfile = async (req, res) => {
     });
   }
 };
+
+export const updateBusinessProfile = async (req, res) => {
+  try {
+    const updateProfile = await updateVendorProfile({
+      role: req.user.role,
+      userId: req.user.id,
+      businessName: req.body.businessName,
+      bio: req.body.bio,
+      location: req.body.location,
+    })
+
+    res.status(200).json({
+      message: "Vendor profile updated successfully",
+      vendorProfile: updateProfile
+  });
+  } catch (err) {
+    res.status(err.status || 500).json({
+      message: err.message || "Unable to update vendor profile",
+    });
+  }
+}
 
 export const getMyProfile = async (req, res) => {
   try {
