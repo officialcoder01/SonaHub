@@ -34,7 +34,10 @@ export const updateBusinessProfile = async (req, res) => {
       location: req.body.location,
     })
 
-    res.status(200).json(updateProfile);
+    res.status(200).json({
+      message: "Vendor profile updated successfully",
+      vendorProfile: updateProfile
+  });
   } catch (err) {
     res.status(err.status || 500).json({
       message: err.message || "Unable to update vendor profile",
