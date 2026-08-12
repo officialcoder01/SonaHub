@@ -1,6 +1,5 @@
 import { useState } from "react";
 import naijaStateLocalGovernment from "naija-state-local-government";
-import { createProfile } from "../../services/vendorService";
 
 const initialFormData = {
   businessName: "",
@@ -8,10 +7,19 @@ const initialFormData = {
   location: "",
 };
 
+const defaultFormData = Object.freeze({});
+
 const stateOptions = naijaStateLocalGovernment.states();
 
-export default function VendorProfileForm({ token, onProfileCreated }) {
-  const [formData, setFormData] = useState(initialFormData);
+export default function VendorProfileForm({
+  token,
+  onProfileCreated,
+  onSuccess,
+  submitAction,
+  submitLabel = "Save Profile",
+  initialData = defaultFormData,
+}) {
+  const [formData, setFormData] = useState({ ...initialFormData, ...initialData });
   const [selectedState, setSelectedState] = useState("");
   const [selectedLga, setSelectedLga] = useState("");
   const [lgaOptions, setLgaOptions] = useState([]);
@@ -27,22 +35,48 @@ export default function VendorProfileForm({ token, onProfileCreated }) {
     }));
   };
 
+  const normalizeInput = (s) => (typeof s === "string" ? s.trim() : "");
+
+  const findStateOption = (input) => {
+    const cleaned = normalizeInput(input);
+    if (!cleaned) return "";
+    const match = stateOptions.find((s) => s.toLowerCase() === cleaned.toLowerCase());
+    return match || cleaned;
+  };
+
+  const getLgasForState = (state) => {
+    const matchedState = findStateOption(state);
+    const result = naijaStateLocalGovernment.lgas(matchedState);
+    return result?.lgas ?? [];
+  };
+
+  useEffect(() => {
+    const loc = initialData?.location;
+    if (!loc) return;
+
+    const parts = loc.split(",").map((p) => p.trim()).filter(Boolean);
+    const [lga = "", stateInput = ""] = parts;
+    const state = findStateOption(stateInput);
+
+    setSelectedState(state);
+    setSelectedLga(lga);
+    setLgaOptions(getLgasForState(state));
+  }, [initialData?.location]);
+
   const handleStateChange = (event) => {
-    const stateName = event.target.value;
-    setSelectedState(stateName);
+    const raw = event.target.value;
+    const state = findStateOption(raw);
+    setSelectedState(state);
     setSelectedLga("");
-    setLgaOptions(stateName ? naijaStateLocalGovernment.lgas(stateName).lgas : []);
-    setFormData((currentData) => ({
-      ...currentData,
-      location: stateName,
-    }));
+    setLgaOptions(getLgasForState(state));
+    setFormData((cur) => ({ ...cur, location: state }));
   };
 
   const handleLgaChange = (event) => {
-    const lgaName = event.target.value;
+    const lgaName = normalizeInput(event.target.value);
     setSelectedLga(lgaName);
-    setFormData((currentData) => ({
-      ...currentData,
+    setFormData((cur) => ({
+      ...cur,
       location: lgaName && selectedState ? `${lgaName}, ${selectedState}` : selectedState,
     }));
   };
@@ -59,18 +93,19 @@ export default function VendorProfileForm({ token, onProfileCreated }) {
     }
 
     try {
-      await createProfile(
-        {
-          ...formData,
-          location: `${selectedLga}, ${selectedState}`,
-        },
-        token,
-      );
+      const data = {
+        ...formData,
+        location: `${selectedLga}, ${selectedState}`,
+      };
+
+      const response = await submitAction(data, token);
+
       setFormData(initialFormData);
       setSelectedState("");
       setSelectedLga("");
       setLgaOptions([]);
-      onProfileCreated();
+
+      if (onSuccess) onSuccess(response.vendorProfile || response);
     } catch (err) {
       setError(err.message || "Unable to create vendor profile");
     } finally {
@@ -146,7 +181,7 @@ export default function VendorProfileForm({ token, onProfileCreated }) {
       </div>
 
       <button type="submit" disabled={isSubmitting} className="btn-primary">
-        {isSubmitting ? "Saving..." : "Save Profile"}
+        {isSubmitting ? `${submitLabel.split(' ')[0]}ing...` : submitLabel}
       </button>
 
       {error ? <p className="form-error">{error}</p> : null}
