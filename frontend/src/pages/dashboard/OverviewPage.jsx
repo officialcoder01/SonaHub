@@ -118,6 +118,7 @@ export default function OverviewPage() {
         icon: Star,
       },
     ],
+    [profile]
   );
 
   const recentBookings = bookings.slice(0, 4);
