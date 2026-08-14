@@ -24,11 +24,6 @@ export default function BookingDetailsModal({ isOpen, onClose, booking, onReview
   // the modal or triggering a full page reload.
   const [localReview, setLocalReview] = useState(booking?.review ?? null);
 
-  useEffect(() => {
-    // Sync local review state with the booking prop whenever it changes.
-    setLocalReview(booking?.review ?? null);
-  }, [booking]);
-
   if (!isOpen || !booking) return null;
 
   // Graceful fallbacks for display fields
