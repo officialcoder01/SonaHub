@@ -44,11 +44,6 @@ export default function ServiceForm({
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    setFormData({ ...initialFormData, ...initialData });
-    setExistingImageUrls(existingImages);
-  }, [JSON.stringify(initialData), JSON.stringify(existingImages)]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((currentData) => ({
