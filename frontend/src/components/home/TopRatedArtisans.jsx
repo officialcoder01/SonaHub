@@ -59,7 +59,7 @@ export default function TopRatedArtisans({ vendors = [], isLoading, error }) {
 
         {!isLoading && !error && topArtisans.length > 0 ? (
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {topArtisans.map((vendor, index) => {
+            {topArtisans.map((vendor) => {
               const vendorName = getVendorName(vendor);
               const getRating = Number(vendor?.averageRating || 0);
               const totalReview = Number(vendor?.reviewCount || 0);

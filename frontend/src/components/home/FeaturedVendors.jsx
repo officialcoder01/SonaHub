@@ -34,8 +34,6 @@ const getInitials = (name = "") =>
 const getBio = (vendor) =>
   vendor.bio || vendor.specialization || vendor.category?.name || "Professional Artisan";
 
-const getRating = (vendor) => Number(vendor?.reviewStats?.averageRating || 0);
-
 const getCompletedJobs = (vendor) =>
   vendor.completedJobs || vendor.jobsCompleted ||  0;
 
@@ -100,7 +98,6 @@ export default function FeaturedVendors({ vendors = [], isLoading, error }) {
         >
           {vendors.map((vendor, index) => {
             const vendorName = getVendorName(vendor);
-            const rating = getRating(vendor);
 
             return (
               <motion.article

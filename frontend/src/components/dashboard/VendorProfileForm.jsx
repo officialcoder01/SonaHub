@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import naijaStateLocalGovernment from "naija-state-local-government";
 
 const initialFormData = {
@@ -21,18 +21,11 @@ export default function VendorProfileForm({
   const [formData, setFormData] = useState({ ...initialFormData, ...initialData });
   const [selectedState, setSelectedState] = useState("");
   const [selectedLga, setSelectedLga] = useState("");
-  const [lgaOptions, setLgaOptions] = useState([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((currentData) => ({
-      ...currentData,
-      [name]: value,
-    }));
-  };
+  // track the previous initialData to reset the form when it changes
+  const [prevInitialData, setPrevInitialData] = useState("");
 
   const normalizeInput = (s) => (typeof s === "string" ? s.trim() : "");
 
@@ -49,25 +42,39 @@ export default function VendorProfileForm({
     return result?.lgas ?? [];
   };
 
-  useEffect(() => {
+  // Detect changes in initialData and reset the form if it has changed
+  if(JSON.stringify(initialData) !== JSON.stringify(prevInitialData)) {
+    setPrevInitialData(initialData);
+
+    setFormData({ ...initialFormData, ...initialData });
+
     const loc = initialData?.location;
-    if (!loc) return;
 
-    const parts = loc.split(",").map((p) => p.trim()).filter(Boolean);
-    const [lga = "", stateInput = ""] = parts;
-    const state = findStateOption(stateInput);
+    if (loc) {
+      const parts = loc.split(",").map((p) => p.trim()).filter(Boolean);
+      const [lga = "", stateInput = ""] = parts;
+      const state = findStateOption(stateInput);
 
-    setSelectedState(state);
-    setSelectedLga(lga);
-    setLgaOptions(getLgasForState(state));
-  }, [initialData?.location]);
+      setSelectedState(state);
+      setSelectedLga(lga);
+    } else {
+      setSelectedState("");
+      setSelectedLga("");
+    }
+  };
+
+  const lgaOptions = selectedState ? getLgasForState(selectedState) : [];
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((cur) => ({ ...cur, [name]: value }));
+  }
 
   const handleStateChange = (event) => {
     const raw = event.target.value;
     const state = findStateOption(raw);
     setSelectedState(state);
     setSelectedLga("");
-    setLgaOptions(getLgasForState(state));
     setFormData((cur) => ({ ...cur, location: state }));
   };
 
@@ -102,7 +109,6 @@ export default function VendorProfileForm({
       setFormData(initialFormData);
       setSelectedState("");
       setSelectedLga("");
-      setLgaOptions([]);
 
       if (onSuccess) onSuccess(response.vendorProfile || response);
     } catch (err) {

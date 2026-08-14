@@ -14,7 +14,7 @@ import BookingStatusBadge from "../../components/dashboard/BookingStatusBadge";
 import VendorProfileForm from "../../components/dashboard/VendorProfileForm";
 import { useAuth } from "../../context/AuthContext";
 import { getVendorBookings } from "../../services/bookingService";
-import { getMyProfile } from "../../services/vendorService";
+import { getMyProfile, createProfile } from "../../services/vendorService";
 
 export default function OverviewPage() {
   const navigate = useNavigate();
@@ -118,6 +118,7 @@ export default function OverviewPage() {
         icon: Star,
       },
     ],
+    [profile]
   );
 
   const recentBookings = bookings.slice(0, 4);
@@ -160,7 +161,11 @@ export default function OverviewPage() {
             </p>
             <h2 className="mt-2">Complete your vendor profile</h2>
           </div>
-          <VendorProfileForm token={token} onProfileCreated={loadDashboard} />
+          <VendorProfileForm
+            token={token} 
+            submitAction={createProfile}
+            onSuccess={loadDashboard}
+          />
         </section>
       ) : null}
 

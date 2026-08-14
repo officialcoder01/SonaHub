@@ -24,7 +24,7 @@ export default function EditVendorProfile() {
                 const profileData = await getMyProfile(token);
                 setProfile(profileData);
             } catch (err) {
-                setError("Failed to fetch vendor profile.");
+                setError(err.message || "Failed to fetch vendor profile.");
             } finally {
                 setIsLoading(false);
             }
