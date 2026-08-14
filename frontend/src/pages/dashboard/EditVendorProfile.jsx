@@ -86,10 +86,12 @@ export default function EditVendorProfile() {
 
     return (
         <div className="flex justify-center">
-            <section className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
-                    Edit Vendor Profile
-                </p>
+            <section className="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                <div className="mb-4">
+                    <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
+                        Edit Vendor Profile
+                    </p>
+                </div>
                 <VendorProfileForm 
                   token={token}
                   onSuccess={handleSuccess}

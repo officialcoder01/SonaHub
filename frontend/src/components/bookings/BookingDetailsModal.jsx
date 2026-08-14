@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatDate } from "../../utils/serviceHelpers";
 import BookingStatusBadge from "../dashboard/BookingStatusBadge";
 import ReviewForm from "../reviews/ReviewForm";
@@ -23,11 +23,6 @@ export default function BookingDetailsModal({ isOpen, onClose, booking, onReview
   // and the form is swapped out for the read-only display without closing
   // the modal or triggering a full page reload.
   const [localReview, setLocalReview] = useState(booking?.review ?? null);
-
-  useEffect(() => {
-    // Sync local review state with the booking prop whenever it changes.
-    setLocalReview(booking?.review ?? null);
-  }, [booking]);
 
   if (!isOpen || !booking) return null;
 

@@ -88,6 +88,7 @@ export default function EditService() {
           </p>
         </div>
         <ServiceForm
+          key={service.id || "Edit-mode"}
           onSuccess={handleSuccess}
           submitAction={(data, token) => updateService(id, data, token)}
           submitLabel="Update Service"
