@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatDate } from "../../utils/serviceHelpers";
 import BookingStatusBadge from "../dashboard/BookingStatusBadge";
 import ReviewForm from "../reviews/ReviewForm";
