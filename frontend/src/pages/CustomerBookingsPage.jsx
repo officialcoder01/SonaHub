@@ -382,7 +382,7 @@ export default function CustomerBookingsPage() {
 
       {/* Details modal view */}
       <BookingDetailsModal
-        key={selectedBooking?.id}
+        key={selectedBooking?.id || "details-modal"}
         isOpen={isDetailsOpen}
         onClose={handleCloseDetails}
         booking={selectedBooking}
