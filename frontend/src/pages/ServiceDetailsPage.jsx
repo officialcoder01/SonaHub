@@ -55,7 +55,11 @@ export default function ServiceDetailsPage() {
   }, [id]);
 
   useEffect(() => {
-    loadServiceDetails();
+    const loadService = async () => {
+      loadServiceDetails();
+    };
+
+    loadService();
   }, [loadServiceDetails]);
 
   const scrollToRelatedServices = () => {

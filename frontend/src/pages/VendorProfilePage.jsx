@@ -25,6 +25,8 @@ export default function VendorProfilePage() {
   // Wrapped in useCallback so it can be called again on error retry.
   //////////////////////////////////////////////////
   const loadVendor = useCallback(async (targetId) => {
+    if (!targetId || typeof targetId !== "string") return;
+    
     setIsLoading(true);
     setError("");
 
@@ -48,7 +50,12 @@ export default function VendorProfilePage() {
 
   useEffect(() => {
     activeIdRef.current = id; // Update the active ID ref on route change
-    loadVendor(id);
+    
+    const fetchVendor = async () => {
+      loadVendor(id);
+    };
+
+    fetchVendor();
 
     return () => {
       activeIdRef.current = null; // Clear the ref on unmount to prevent state updates
@@ -67,7 +74,7 @@ export default function VendorProfilePage() {
           <Link to="/market" className="btn-secondary mr-3">
             Back to Market
           </Link>
-          <button type="button" className="btn-primary" onClick={loadVendor}>
+          <button type="button" className="btn-primary" onClick={() => loadVendor(id)}>
             Try Again
           </button>
         </section>
