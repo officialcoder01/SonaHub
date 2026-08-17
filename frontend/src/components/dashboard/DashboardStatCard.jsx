@@ -11,7 +11,6 @@ export default function DashboardStatCard({
       green: "bg-emerald-50 text-emerald-700",
       amber: "bg-amber-50 text-amber-700",
       violet: "bg-violet-50 text-violet-700",
-      slate: "bg-slate-100 text-slate-700",
     }[tone] || "bg-blue-50 text-blue-700";
 
   return (
@@ -26,17 +25,6 @@ export default function DashboardStatCard({
           </p>
         </div>
         
-        {/*
-          //////////////////////////////////////////////////////////////////////
-          // DYNAMIC ICON RENDERING
-          //
-          // DashboardStatCard conditionally renders the dynamic Lucide icon 
-          // component passed via the `icon` prop (renamed locally to capitalized `Icon`).
-          // The icon element (<Icon className="h-5 w-5" />) inherits its colors from
-          // `toneClassName` to align with the dashboard's design token palette, and
-          // is constrained to h-5 w-5 inside a h-9 w-9 container for visual balance.
-          //////////////////////////////////////////////////////////////////////
-        */}
         {Icon ? (
           <span
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${toneClassName}`}

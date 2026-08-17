@@ -111,12 +111,6 @@ export default function OverviewPage() {
         tone: "violet",
         icon: CheckCircle2,
       },
-      {
-        label: "Average Rating",
-        value: `${profile?.reviewStats.averageRating || "N/A"}${profile?.reviewStats.totalReviews > 0 ? ` (${profile.reviewStats.totalReviews})` : ""}`,
-        tone: "slate",
-        icon: Star,
-      },
     ],
     [profile]
   );
@@ -243,7 +237,7 @@ export default function OverviewPage() {
                   className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                   onClick={() => navigate("/dashboard/vendor-profile")}
                 >
-                  Update Vendor Profile
+                  Vendor Profile
                 </button>
               </div>
             </section>
