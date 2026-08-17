@@ -21,6 +21,7 @@ export default function ServicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [featureError, setFeatureError] = useState("");
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
@@ -39,6 +40,7 @@ export default function ServicesPage() {
     }
 
     setIsLoading(true);
+    setFeatureError("");
     setError("");
 
     try {
@@ -54,37 +56,12 @@ export default function ServicesPage() {
   }, [token]);
 
   useEffect(() => {
-    let isActive = true;
-
     if (!token) {
-      return () => {
-        isActive = false;
-      };
+      return;
     }
 
-    getMyServices(token)
-      .then((response) => {
-        if (isActive) {
-          setServices(response.services || []);
-          setCurrentPage(1);
-          setError("");
-        }
-      })
-      .catch((err) => {
-        if (isActive) {
-          setError(err.message || "Unable to load your services");
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [token]);
+    loadServices();
+  }, [loadServices, token]);
 
   const openDeleteModal = (service) => {
     setServiceToDelete(service);
@@ -139,6 +116,7 @@ export default function ServicesPage() {
     }
 
     setFeatureServiceId(service.id);
+    setFeatureError("");
 
     try {
       const response = service.isPinned
@@ -154,7 +132,7 @@ export default function ServicesPage() {
         ),
       );
     } catch (err) {
-      setError(err.message || "Unable to update featured service");
+      setFeatureError(err.message || "Unable to update featured service");
     } finally {
       setFeatureServiceId(null);
     }
@@ -211,6 +189,7 @@ export default function ServicesPage() {
 
       {!isLoading && !error && services.length > 0 ? (
         <>
+          {featureError ? <p className="form-error">{featureError}</p> : null}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visibleServices.map((service) => (
               <VendorServiceCard
