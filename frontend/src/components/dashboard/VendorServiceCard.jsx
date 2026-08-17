@@ -62,7 +62,7 @@ export default function VendorServiceCard({
         <div className="absolute right-2 top-2 z-30 flex justify-end" ref={menuRef}>
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-950"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition-colors bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             aria-label={`${isFeatured ? "Remove" : "Feature"} ${service.title}`}
             aria-haspopup="menu"
             aria-expanded={isMenuOpen}
