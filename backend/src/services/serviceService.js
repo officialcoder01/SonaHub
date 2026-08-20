@@ -211,10 +211,22 @@ export const getAllServices = async ({
   }
 
   if (normalizedSearch) {
-    where.title = {
-      contains: normalizedSearch,
-      mode: "insensitive",
-    };
+    where.OR = [
+      {
+        title: {
+          contains: normalizedSearch,
+          mode: "insensitive",
+        },
+      },
+      {
+        vendor: {
+          businessName: {
+            contains: normalizedSearch,
+            mode: "insensitive",
+          },
+        },
+      },
+    ]
   }
 
   if (normalizedLocation) {

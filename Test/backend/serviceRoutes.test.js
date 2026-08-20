@@ -404,10 +404,22 @@ describe("service routes", () => {
         ...defaultPublicServicesQuery,
         where: {
           isArchived: false,
-          title: {
-            contains: "photography",
-            mode: "insensitive",
-          },
+          OR: [
+            {
+              title: {
+                contains: "photography",
+                mode: "insensitive",
+              },
+            },
+            {
+              vendor: {
+                businessName: {
+                  contains: "photography",
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
         },
       });
     });
