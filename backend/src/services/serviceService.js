@@ -285,39 +285,103 @@ export const getAllServices = async ({
   };
 };
 
+const serviceDetailsInclude = {
+  images: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  reviews: {
+    include: {
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  },
+  vendor: {
+    select: {
+      id: true,
+      businessName: true,
+      bio: true,
+      location: true,
+      isVerified: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+    },
+  },
+};
+
+const relatedServiceSelect = {
+  id: true,
+  title: true,
+  price: true,
+  description: true,
+  images: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  reviews: {
+    select: {
+      rating: true,
+    },
+  },
+  vendor: {
+    select: {
+      businessName: true,
+      location: true,
+    },
+  },
+};
+
+const mapRelatedService = ({ reviews, ...service }) => ({
+  ...service,
+  reviewStats: calculateReviewStats(reviews),
+});
+
+const mapServiceDetails = (service) => {
+  const { reviews: vendorReviews, ...vendor } = service.vendor;
+
+  return {
+    id: service.id,
+    title: service.title,
+    description: service.description,
+    price: service.price,
+    createdAt: service.createdAt,
+    images: service.images,
+    category: service.category,
+    reviews: service.reviews,
+    reviewStats: calculateReviewStats(service.reviews),
+    vendor: {
+      ...vendor,
+      reviewStats: calculateReviewStats(vendorReviews),
+    },
+  };
+};
+
 // Retrieve a single public service details payload for the Service Details page.
 export const getServiceDetailsById = async (serviceId) => {
-  const service = await prisma.service.findUnique({
+  const service = await prisma.service.findFirst({
     where: {
       id: serviceId,
       isArchived: false,
     },
-    include: {
-      images: true,
-      category: true,
-      vendor: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          reviews: {
-            select: { rating: true }
-          }
-        },
-      },
-      reviews: {
-        include: {
-          user: {
-            select: {
-              name: true,
-            }
-          }
-        }
-      },
-    },
+    include: serviceDetailsInclude,
   });
 
   if (!service) {
@@ -329,74 +393,17 @@ export const getServiceDetailsById = async (serviceId) => {
   const relatedServices = await prisma.service.findMany({
     where: {
       categoryId: service.categoryId,
-      id: {
-        not: service.id,
-      },
+      id: { not: service.id },
       isArchived: false
     },
-    select: {
-      id: true,
-      title: true,
-      price: true,
-      description: true,
-      images: true,
-      category: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      reviews: {
-        select: { rating: true },
-      },
-      vendor: {
-        select: {
-          businessName: true,
-          location: true,
-        },
-      },
-    },
-    take: 8,
+    select: relatedServiceSelect,
     orderBy: { createdAt: "desc" },
+    take: 8,
   });
-
-  const relatedServicesWithStats = relatedServices.map((service) => {
-    const reviewStats = calculateReviewStats(service.reviews);
-    return {
-      ...service,
-      reviewStats,
-    };
-  });
-
-  const serviceReviewStats = calculateReviewStats(service.reviews);
-
-  const { reviews, ...vendor } = service.vendor;
 
   return {
-    service: {
-      id: service.id,
-      title: service.title,
-      description: service.description,
-      price: service.price,
-      createdAt: service.createdAt,
-      images: service.images,
-      category: {
-        id: service.category.id,
-        name: service.category.name,
-      },
-      reviews: service.reviews,
-      reviewStats: serviceReviewStats,
-      vendor: {
-        id: vendor.id,
-        businessName: vendor.businessName,
-        bio: vendor.bio,
-        location: vendor.location,
-        isVerified: vendor.isVerified,
-        user: vendor.user,
-        reviewStats: calculateReviewStats(reviews),
-      },
-    },
-    relatedServices: relatedServicesWithStats,
+    service: mapServiceDetails(service),
+    relatedServices: relatedServices.map(mapRelatedService),
   };
 };
 
