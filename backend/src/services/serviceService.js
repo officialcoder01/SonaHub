@@ -251,8 +251,8 @@ export const getAllServices = async ({
       where,
       include: {
         images: true,
-        category: true,
-        reviews: true,
+        category: { select: { id: true, name: true }},
+        reviews: { select: { rating: true }},
         vendor: {
           select: {
             businessName: true,
