@@ -308,7 +308,7 @@ const serviceDetailsInclude = {
       businessName: true,
       bio: true,
       location: true,
-      isVerified: true,
+      status: true,
       user: {
         select: {
           id: true,
