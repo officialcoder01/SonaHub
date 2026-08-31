@@ -30,6 +30,12 @@ enum BookingStatus {
   CANCELLED
 }
 
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  NOT_VERIFIED
+}
+
 //////////////////////////////////////////////////////
 // MODELS
 //////////////////////////////////////////////////////
@@ -55,20 +61,20 @@ model User {
 //////////////////////////////////////////////////////
 
 model VendorProfile {
-  id                String      @id @default(uuid())
+  id                String                 @id @default(uuid())
   businessName      String?
   bio               String?
   location          String?
-  isVerified        Boolean     @default(false)
+  status            VerificationStatus     @default(NOT_VERIFIED)
 
-  userId            String      @unique
-  user              User        @relation(fields: [userId], references: [id])
+  userId            String                 @unique
+  user              User                   @relation(fields: [userId], references: [id])
 
   services          Service[]
   reviews           Review[]
-  bookings          Booking[]   @relation("VendorBookings")
+  bookings          Booking[]              @relation("VendorBookings")
 
-  createdAt         DateTime    @default(now())
+  createdAt         DateTime               @default(now())
 }
 
 //////////////////////////////////////////////////////
