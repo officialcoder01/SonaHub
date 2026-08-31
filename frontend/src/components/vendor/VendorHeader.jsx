@@ -17,7 +17,7 @@ const renderStar = (rating) => {
   const rounded = Math.round(Number(rating) || 0);
   return (
     <span 
-      class={rounded > 0 ? "text-amber-400" : "text-slate-400"}
+      className={rounded > 0 ? "text-amber-400" : "text-slate-400"}
       aria-hidden="true"
     >
       <Star className="h-4 w-4 fill-current" />
@@ -28,7 +28,7 @@ const renderStar = (rating) => {
 export default function VendorHeader({ vendor }) {
   const businessName = vendor?.businessName || "Artisan Vendor";
   const userName = vendor?.user?.name || "";
-  const isVerified = vendor?.isVerified ?? false;
+  const isVerified = vendor?.status === "VERIFIED" ?? false;
   const location = vendor?.location || "Location not listed";
   const bio = vendor?.bio || "";
 

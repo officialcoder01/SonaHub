@@ -30,7 +30,7 @@ export default function VendorProfileManagementHeader({ profile }) {
               <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
                 {businessName}
               </h1>
-              {profile?.isVerified ? (
+              {profile?.status === "VERIFIED" ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                   <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
                   Verified

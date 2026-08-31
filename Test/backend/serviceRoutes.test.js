@@ -333,8 +333,8 @@ describe("service routes", () => {
       },
       include: {
         images: true,
-        category: true,
-        reviews: true,
+        category: { select: { id: true, name: true }},
+        reviews: { select: { rating: true }},
         vendor: {
           select: {
             businessName: true,
@@ -744,18 +744,10 @@ describe("service routes", () => {
       },
       include: {
         images: true,
-        category: true,
-        vendor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-            reviews: {
-              select: { rating: true },
-            },
+        category: {
+          select: {
+            id: true,
+            name: true,
           },
         },
         reviews: {
@@ -764,6 +756,24 @@ describe("service routes", () => {
               select: {
                 name: true,
               }
+            }
+          }
+        },
+        vendor: {
+          select: {
+            id: true,
+            businessName: true,
+            bio: true,
+            location: true,
+            isVerified: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            reviews: {
+              select: { rating: true },
             }
           }
         },
@@ -805,7 +815,7 @@ describe("service routes", () => {
     };
 
     test("should successfully fetch a service by id", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -818,11 +828,11 @@ describe("service routes", () => {
         price: 1800,
         createdAt: "2026-05-27T00:00:00.000Z",
       });
-      expect(mockPrisma.service.findUnique).toHaveBeenCalledWith(expectedServiceQuery);
+      expect(mockPrisma.service.findFirst).toHaveBeenCalledWith(expectedServiceQuery);
     });
 
     test("should include vendor data", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -845,7 +855,7 @@ describe("service routes", () => {
     });
 
     test("should include service review statistics", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -859,7 +869,7 @@ describe("service routes", () => {
     });
 
     test("should return empty review stats when service has no reviews", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetailsWithNoReviews);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetailsWithNoReviews);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       mockPrisma.review.findMany.mockResolvedValue([]);
@@ -875,7 +885,7 @@ describe("service routes", () => {
     });
 
     test("should include category data", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -888,7 +898,7 @@ describe("service routes", () => {
     });
 
     test("should include service images", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -898,7 +908,7 @@ describe("service routes", () => {
     });
 
     test("should include related services", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(serviceDetails);
+      mockPrisma.service.findFirst.mockResolvedValue(serviceDetails);
       mockPrisma.service.findMany.mockResolvedValue(relatedServices);
 
       const res = await request(app).get("/api/services/service-1");
@@ -909,7 +919,7 @@ describe("service routes", () => {
     });
 
     test("should calculate review statistics correctly", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue({
+      mockPrisma.service.findFirst.mockResolvedValue({
         ...serviceDetails,
         vendor: {
           ...serviceDetails.vendor,
@@ -928,7 +938,7 @@ describe("service routes", () => {
     });
 
     test("should return 404 for non-existent service", async () => {
-      mockPrisma.service.findUnique.mockResolvedValue(null);
+      mockPrisma.service.findFirst.mockResolvedValue(null);
 
       const res = await request(app).get("/api/services/service-1");
 

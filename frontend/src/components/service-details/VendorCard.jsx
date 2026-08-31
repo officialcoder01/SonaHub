@@ -25,7 +25,7 @@ export default function VendorCard({ vendor }) {
             <h2 className="text-xl font-bold text-slate-950">
               {vendor?.businessName || "Vendor business"}
             </h2>
-            {vendor?.isVerified ? (
+            {vendor?.status === "VERIFIED" ? (
               <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
                 Verified
               </span>
