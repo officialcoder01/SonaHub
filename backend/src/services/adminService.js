@@ -1,7 +1,9 @@
-import { assertAdmin } from "../utils/roleCheckUtils";
+import prisma from "../config/prisma.js";
+import { assertAdmin } from "../utils/roleCheckUtils.js";
 
-const getAdminDashboard = async (role) => {
-    assertAdmin(role, "You don't have permission!")
+export const getAdminDashboard = async ({role}) => {
+    assertAdmin(role, "You don't have permission!");
+
     const [
         totalUsers,
         pendingVerification,
@@ -32,11 +34,26 @@ const getAdminDashboard = async (role) => {
         }),
 
         prisma.category.findMany({
-            _count: {
-                service: {
-                    where: { isArchived: false },
+            include: {
+                _count: {
+                    select: {
+                        services: {
+                            where: { isArchived: false },
+                        },
+                    }
                 }
             },
         })
-    ])
+    ]);
+
+    return {
+        stats: {
+            totalUsers,
+            pendingVerification,
+            verifiedVendors,
+            totalServices,
+        },
+        recentActivities,
+        servicesByCategory
+    }
 }
