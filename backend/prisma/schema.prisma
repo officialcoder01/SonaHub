@@ -56,6 +56,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Activities Activity[]
 }
 
 //////////////////////////////////////////////////////
@@ -182,4 +184,19 @@ model Message {
   sender      User     @relation(fields: [senderId], references: [id])
 
   createdAt   DateTime @default(now())
+}
+
+//////////////////////////////////////////////////////////
+
+model Activity {
+  id        String   @id @default(cuid())
+  adminId   String
+  type      String
+  entityId  String?
+  message   String
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([createdAt])
 }

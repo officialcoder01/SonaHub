@@ -9,6 +9,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import vendorBookingRoutes from "./routes/vendorBookingRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoute.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -144,6 +145,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/vendor/bookings", vendorBookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

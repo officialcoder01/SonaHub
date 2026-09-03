@@ -659,7 +659,7 @@ describe("service routes", () => {
         businessName: "Jane Studios",
         bio: "Warm documentary-style photography",
         location: "Lagos",
-        isVerified: true,
+        status: "VERIFIED",
         user: {
           name: "Jane Doe",
         },
@@ -709,7 +709,7 @@ describe("service routes", () => {
         businessName: "Jane Studios",
         bio: "Warm documentary-style photography",
         location: "Lagos",
-        isVerified: true,
+        status: "VERIFIED",
         user: {
           name: "Jane Doe",
         },
@@ -765,7 +765,7 @@ describe("service routes", () => {
             businessName: true,
             bio: true,
             location: true,
-            isVerified: true,
+            status: true,
             user: {
               select: {
                 id: true,
@@ -843,7 +843,7 @@ describe("service routes", () => {
         businessName: "Jane Studios",
         bio: "Warm documentary-style photography",
         location: "Lagos",
-        isVerified: true,
+        status: "VERIFIED",
         user: {
           name: "Jane Doe",
         },

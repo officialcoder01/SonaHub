@@ -199,7 +199,7 @@ describe("vendorService", () => {
         id: true,
         businessName: true,
         location: true,
-        isVerified: true,
+        status: true,
         user: {
           select: {
             name: true,
