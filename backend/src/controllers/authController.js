@@ -2,7 +2,7 @@
 // This controller handles user authentication,
 // including registration and login.
 ////////////////////////////////////
-import { registerUser, loginUser } from "../services/authService.js";
+import { registerUser, loginUser } from "../services/authService.ts";
 
 const buildAuthResponse = (result) => {
   // Passwords should never leave the server, even in hashed form.

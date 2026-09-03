@@ -30,7 +30,7 @@ jest.mock("../../backend/src/utils/generateToken.js", () => ({
   generateToken: mockGenerateToken,
 }));
 
-const { registerUser, loginUser } = require("../../backend/src/services/authService.js");
+const { registerUser, loginUser } = require("../../backend/src/services/authService.ts");
 
 describe("authService", () => {
   beforeEach(() => {
