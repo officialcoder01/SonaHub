@@ -9,6 +9,7 @@ export const getAdminDashboard = async ({role}) => {
         pendingVerification,
         verifiedVendors,
         totalServices,
+        pendingVendors,
         recentActivities,
         servicesByCategory
     ] = await Promise.all([
@@ -26,11 +27,29 @@ export const getAdminDashboard = async ({role}) => {
             where: { isArchived: false },
         }),
 
+        prisma.vendorProfile.findMany({
+            where: {
+                status: "PENDING",
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            take: 5,
+        }),
+
         prisma.activity.findMany({
             orderBy: {
                 createdAt: "desc",
             },
-            take: 10,
+            take: 8,
         }),
 
         prisma.category.findMany({
@@ -53,6 +72,7 @@ export const getAdminDashboard = async ({role}) => {
             verifiedVendors,
             totalServices,
         },
+        pendingVendors,
         recentActivities,
         servicesByCategory
     }
