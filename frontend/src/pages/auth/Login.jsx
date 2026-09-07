@@ -35,7 +35,14 @@ export default function Login() {
       const response = await loginUser(formData);
       login(response.token, response.user);
       setFormData(initialFormData);
-      navigate(response.user.role === "VENDOR" ? "/dashboard" : "/");
+      // Each protected role returns to its own workspace after authentication.
+      const destination =
+        response.user.role === "VENDOR"
+          ? "/dashboard"
+          : response.user.role === "ADMIN"
+            ? "/admin/dashboard"
+            : "/";
+      navigate(destination);
     } catch (err) {
       setError(err.message || "Unable to log in");
     } finally {
