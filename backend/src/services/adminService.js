@@ -74,6 +74,10 @@ export const getAdminDashboard = async ({role}) => {
         },
         pendingVendors,
         recentActivities,
-        servicesByCategory
+        servicesByCategory: servicesByCategory
+            .sort((firstCategory, secondCategory) =>
+                secondCategory._count.services - firstCategory._count.services
+            )
+            .slice(0, 5)
     }
 }
