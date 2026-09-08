@@ -3,6 +3,7 @@ const mockPrisma = {
     findUnique: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
+    findFirst: jest.fn(),
   },
   booking: {
     groupBy: jest.fn(),
@@ -101,19 +102,22 @@ describe("vendorService", () => {
       }
     };
 
-    mockPrisma.vendorProfile.findUnique.mockResolvedValue(profile);
+    mockPrisma.vendorProfile.findFirst.mockResolvedValue(profile);
     mockPrisma.booking.groupBy.mockResolvedValue([]);
 
     const result = await getVendorProfileByUserId("user-1", "VENDOR");
 
-    expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
+    expect(mockPrisma.vendorProfile.findFirst).toHaveBeenCalledWith({
       where: { userId: "user-1" },
       include: {
         services: {
           where: {
             isArchived: false,
           },
-          include: {
+          select: {
+            title: true,
+            price: true,
+            description: true,
             images: true,
             category: true,
           },
@@ -133,18 +137,21 @@ describe("vendorService", () => {
   });
 
   test("should return 404 if not created", async () => {
-    mockPrisma.vendorProfile.findUnique.mockResolvedValue(null);
+    mockPrisma.vendorProfile.findFirst.mockResolvedValue(null);
 
     await expect(getVendorProfileByUserId("user-1", "VENDOR")).rejects.toThrow("Vendor not found");
 
-    expect(mockPrisma.vendorProfile.findUnique).toHaveBeenCalledWith({
+    expect(mockPrisma.vendorProfile.findFirst).toHaveBeenCalledWith({
       where: { userId: "user-1" },
       include: {
         services: {
           where: {
             isArchived: false,
           },
-          include: {
+          select: {
+            title: true,
+            price: true,
+            description: true,
             images: true,
             category: true,
           },

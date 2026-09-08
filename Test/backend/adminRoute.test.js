@@ -122,8 +122,6 @@ describe("admin routes", () => {
             const res = await request(app)
                 .get("/api/admin/dashboard")
                 .set("Authorization", adminAuth);
-
-            console.log(res.body)
             
             expect(res.status).toBe(200);
             expect(res.body).toMatchObject(response);

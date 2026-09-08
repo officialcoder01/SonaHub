@@ -68,12 +68,15 @@ export const getVendorProfileByUserId = async (userId, role) => {
   assertVendor(role, "Only vendors can access their vendor profile");
 
   // 1. Fetch vendor data and basic counts directly from DB
-  const vendor = await prisma.vendorProfile.findUnique({
+  const vendor = await prisma.vendorProfile.findFirst({
     where: { userId },
     include: {
       services: {
         where: { isArchived: false },
-        include: {
+        select: {
+          title: true,
+          price: true,
+          description: true,
           images: true,
           category: true,
         },
