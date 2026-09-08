@@ -56,12 +56,12 @@ export default function ServicesPage() {
   }, [token]);
 
   useEffect(() => {
-    if (!token) {
-      return;
-    }
+    const services = () => {
+      loadServices()
+    };
 
-    loadServices();
-  }, [loadServices, token]);
+    services();
+  }, [loadServices]);
 
   const openDeleteModal = (service) => {
     setServiceToDelete(service);

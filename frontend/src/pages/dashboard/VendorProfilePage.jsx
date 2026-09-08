@@ -10,7 +10,7 @@ import VendorProfileManagementHeader from "../../components/dashboard/VendorProf
 import VendorServiceCard from "../../components/dashboard/VendorServiceCard";
 import VendorAbout from "../../components/vendor/VendorAbout";
 import { useAuth } from "../../context/AuthContext";
-import { deleteService, getMyServices, pinMyService, unpinMyService } from "../../services/serviceService";
+import { deleteService, pinMyService, unpinMyService } from "../../services/serviceService";
 import { getMyProfile } from "../../services/vendorService";
 import { useNavigate } from "react-router-dom";
 
@@ -34,26 +34,15 @@ export default function VendorProfilePage() {
 
     try {
       // The profile supplies analytics while the catalog endpoint supplies card-ready image/category data.
-      const [profileResult, serviceResult] = await Promise.allSettled([
-        getMyProfile(token),
-        getMyServices(token),
-      ]);
+      const profileResult = await getMyProfile(token);
 
-      if (profileResult.status === "rejected") {
-        throw profileResult.reason;
-      }
-
-      const nextProfile = profileResult.value;
+      const nextProfile = profileResult;
       setProfile(nextProfile);
-      if (serviceResult.status === "fulfilled") {
-        setServices(
-          serviceResult.value.services?.length
-            ? serviceResult.value.services
-            : nextProfile.services || [],
-        );
+      if (profileResult.services) {
+        setServices(profileResult.services || (nextProfile.services || []));
       } else {
         setServices(nextProfile.services || []);
-        setError(serviceResult.reason?.message || "Unable to load service details");
+        setError(profileResult?.message || "Unable to load service details");
       }
     } catch (err) {
       setError(err.message || "Unable to load vendor profile");
@@ -63,8 +52,11 @@ export default function VendorProfilePage() {
   }, [token]);
 
   useEffect(() => {
-    // Deferring the initial request keeps the effect itself free of synchronous state updates.
-    Promise.resolve().then(loadProfile);
+    const profileLoad = () => {
+      loadProfile();
+    };
+
+    profileLoad();
   }, [loadProfile]);
 
   const featuredServices = useMemo(

@@ -20,6 +20,7 @@ import SettingsPage from "./pages/dashboard/SettingsPage";
 import VendorProfilePage from "./pages/dashboard/VendorProfilePage";
 import EditVendorProfile from "./pages/dashboard/EditVendorProfile";
 import VendorPublicProfilePage from "./pages/VendorProfilePage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -44,6 +45,14 @@ export default function App() {
           <Route path="/vendors/:id" element={<VendorPublicProfilePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/bookings"
             element={

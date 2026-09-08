@@ -7,6 +7,7 @@ const mockPrisma = {
     },
     vendorProfile: {
         count: jest.fn(),
+        findMany: jest.fn(),
     },
     user: {
         count: jest.fn(),
@@ -63,6 +64,20 @@ describe("admin routes", () => {
                     verifiedVendors: 50,
                     totalServices: 500
                 },
+                pendingVendors: [
+                    {
+                        id: "USER-1",
+                        name: "John Doe",
+                        email: "johndoe@example.com",
+                        createdAt: "2026-05-31T10:00:00.000Z"
+                    },
+                    {
+                        id: "USER-2",
+                        name: "Jane Doe",
+                        email: "janedoe@example.com",
+                        createdAt: "2026-05-30T10:00:00.000Z"
+                    }
+                ],
                 recentActivities: [
                     {
                         adminId: "ADMIN-1",
@@ -100,13 +115,14 @@ describe("admin routes", () => {
             mockPrisma.vendorProfile.count.mockResolvedValue(response.stats.pendingVerification);
             mockPrisma.vendorProfile.count.mockResolvedValue(response.stats.verifiedVendors);
             mockPrisma.service.count.mockResolvedValue(response.stats.totalServices);
+            mockPrisma.vendorProfile.findMany.mockResolvedValue(response.pendingVendors);
             mockPrisma.activity.findMany.mockResolvedValue(response.recentActivities);
             mockPrisma.category.findMany.mockResolvedValue(response.servicesByCategory);
 
             const res = await request(app)
                 .get("/api/admin/dashboard")
                 .set("Authorization", adminAuth);
-
+            
             expect(res.status).toBe(200);
             expect(res.body).toMatchObject(response);
         });
