@@ -115,9 +115,11 @@ describe("vendorService", () => {
             isArchived: false,
           },
           select: {
+            id: true,
             title: true,
             price: true,
             description: true,
+            isPinned: true,
             images: true,
             category: true,
           },
@@ -149,9 +151,11 @@ describe("vendorService", () => {
             isArchived: false,
           },
           select: {
+            id: true,
             title: true,
             price: true,
             description: true,
+            isPinned: true,
             images: true,
             category: true,
           },

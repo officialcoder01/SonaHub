@@ -74,9 +74,11 @@ export const getVendorProfileByUserId = async (userId, role) => {
       services: {
         where: { isArchived: false },
         select: {
+          id: true,
           title: true,
           price: true,
           description: true,
+          isPinned: true,
           images: true,
           category: true,
         },
