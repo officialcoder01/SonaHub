@@ -28,7 +28,7 @@ const renderStar = (rating) => {
 export default function VendorHeader({ vendor }) {
   const businessName = vendor?.businessName || "Artisan Vendor";
   const userName = vendor?.user?.name || "";
-  const isVerified = vendor?.status === "VERIFIED" ?? false;
+  const isVerified = vendor?.status === "VERIFIED" ? true : false;
   const location = vendor?.location || "Location not listed";
   const bio = vendor?.bio || "";
 

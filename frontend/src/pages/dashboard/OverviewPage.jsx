@@ -5,7 +5,6 @@ import {
   CalendarCheck,
   Clock3,
   CheckCircle2,
-  Star,
 } from "lucide-react";
 import DashboardCardSkeleton from "../../components/dashboard/DashboardCardSkeleton";
 import DashboardEmptyState from "../../components/dashboard/DashboardEmptyState";

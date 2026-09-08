@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import {
   BadgeCheck,
   BriefcaseBusiness,
@@ -25,7 +25,7 @@ const formatActivityDate = (value) => {
 };
 
 export default function AdminDashboardPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { token, user } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
