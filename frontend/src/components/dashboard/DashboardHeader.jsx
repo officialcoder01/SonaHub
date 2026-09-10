@@ -4,7 +4,11 @@ import { ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-export default function DashboardHeader({ onOpenMenu }) {
+export default function DashboardHeader({
+  onOpenMenu,
+  searchPlaceholder = "Search services, bookings, customers...",
+  primaryAction,
+}) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const dropdownRef = useRef(null);
@@ -71,18 +75,20 @@ export default function DashboardHeader({ onOpenMenu }) {
         <input
           id="dashboard-search"
           type="search"
-          placeholder="Search services, bookings, customers..."
+          placeholder={searchPlaceholder}
           className="hidden h-10 w-full max-w-md rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 sm:block"
         />
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            className="btn-primary px-3"
-            onClick={() => navigate("/dashboard/create-service")}
-          >
-            Add Service
-          </button>
+          {primaryAction !== null ? (
+            <button
+              type="button"
+              className="btn-primary px-3"
+              onClick={primaryAction?.onClick || (() => navigate("/dashboard/create-service"))}
+            >
+              {primaryAction?.label || "Add Service"}
+            </button>
+          ) : null}
  
           <div className="relative" ref={dropdownRef}>
             <button

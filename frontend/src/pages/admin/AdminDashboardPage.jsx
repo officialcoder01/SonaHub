@@ -84,8 +84,7 @@ export default function AdminDashboardPage() {
   const highestCategoryCount = Math.max(...categories.map((category) => category?._count?.services || 0), 1);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <div className="mx-auto w-full max-w-6xl">
+    <div>
         {isLoading ? <AdminDashboardSkeleton /> : null}
 
         {!isLoading && error ? (
@@ -111,7 +110,7 @@ export default function AdminDashboardPage() {
             </section>
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.85fr)]">
-              <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+              <section id="pending-verification" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h2>Pending Verification</h2>
@@ -185,7 +184,6 @@ export default function AdminDashboardPage() {
             </section>
           </div>
         ) : null}
-      </div>
-    </main>
+    </div>
   );
 }

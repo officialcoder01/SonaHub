@@ -21,6 +21,7 @@ import VendorProfilePage from "./pages/dashboard/VendorProfilePage";
 import EditVendorProfile from "./pages/dashboard/EditVendorProfile";
 import VendorPublicProfilePage from "./pages/VendorProfilePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import { adminDashboardNavigationItems } from "./components/dashboard/dashboardNavigation";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -49,7 +50,15 @@ export default function App() {
             path="/admin/dashboard"
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
-                <AdminDashboardPage />
+                <VendorDashboardLayout
+                  navigationItems={adminDashboardNavigationItems}
+                  workspaceLabel="Admin workspace"
+                  navigationLabel="Admin dashboard"
+                  searchPlaceholder="Search services, vendors, requests..."
+                  primaryAction={null}
+                >
+                  <AdminDashboardPage />
+                </VendorDashboardLayout>
               </ProtectedRoute>
             }
           />
