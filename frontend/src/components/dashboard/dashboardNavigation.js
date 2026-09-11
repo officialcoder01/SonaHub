@@ -7,6 +7,8 @@ import {
   UserRound,
   Settings,
   MessageSquare,
+  UsersRound,
+  Clock3,
 } from "lucide-react";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,5 +35,30 @@ export const dashboardNavigationItems = [
   { label: "Vendor Profile", to: "/dashboard/vendor-profile", icon: UserRound },
   { label: "Settings", to: "/dashboard/settings", icon: Settings },
   { label: "Messages", to: "/dashboard/messages", icon: MessageSquare, comingSoon: true },
+];
+
+// Admin links only point to features that already exist. Remaining entries stay
+// visible as workspace navigation without implying an unimplemented workflow.
+export const adminDashboardNavigationItems = [
+  { label: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard },
+  {
+    label: "Services",
+    icon: BriefcaseBusiness,
+    children: [
+      { label: "All Services", comingSoon: true },
+      { label: "Featured Services", comingSoon: true },
+    ],
+  },
+  {
+    label: "Vendors",
+    icon: UsersRound,
+    children: [
+      { label: "All Vendors", comingSoon: true },
+      { label: "Featured Vendors", comingSoon: true },
+    ],
+  },
+  { label: "Pending Requests", comingSoon: true, icon: Clock3 },
+  { label: "Profile", comingSoon: true, icon: UserRound },
+  { label: "Settings", comingSoon: true, icon: Settings },
 ];
 

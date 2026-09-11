@@ -4,7 +4,13 @@ import { X } from "lucide-react";
 import logo from "../../assets/images/logo.png";
 import { dashboardNavigationItems } from "./dashboardNavigation";
 
-export default function MobileDashboardDrawer({ isOpen, onClose }) {
+export default function MobileDashboardDrawer({
+  isOpen,
+  onClose,
+  navigationItems = dashboardNavigationItems,
+  workspaceLabel = "Vendor workspace",
+  navigationLabel = "Mobile vendor dashboard",
+}) {
   const linkClassName = ({ isActive }) =>
     `flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
       isActive
@@ -40,7 +46,7 @@ export default function MobileDashboardDrawer({ isOpen, onClose }) {
               <img src={logo} alt="SonaHub Logo" className="h-8 w-auto" />
             </Link>
             <p className="mt-3 text-xs font-medium text-blue-200">
-              Vendor workspace
+              {workspaceLabel}
             </p>
           </div>
           <button
@@ -53,9 +59,31 @@ export default function MobileDashboardDrawer({ isOpen, onClose }) {
           </button>
         </div>
 
-        <nav className="space-y-1 px-4 py-5" aria-label="Mobile vendor dashboard">
-          {dashboardNavigationItems.map((item) => {
+        <nav className="space-y-1 px-4 py-5" aria-label={navigationLabel}>
+          {navigationItems.map((item) => {
             const Icon = item.icon;
+            if (item.children) {
+              return (
+                <div key={item.label} className="py-1">
+                  <div className="flex min-h-11 items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-300">
+                    {Icon ? <Icon className="h-5 w-5" /> : null}
+                    {item.label}
+                  </div>
+                  <div className="ml-5 space-y-1 border-l border-slate-800 pl-3">
+                    {item.children.map((child) => child.comingSoon ? (
+                      <span key={child.label} className="block rounded-md px-3 py-2 text-xs font-semibold text-slate-500" aria-disabled="true">
+                        {child.label}
+                      </span>
+                    ) : (
+                      <NavLink key={child.label} to={child.to} className={linkClassName} onClick={onClose}>
+                        {child.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
             return item.comingSoon ? (
               <div
                 key={item.label}
