@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import logo from "../../assets/images/logo.png";
 import { dashboardNavigationItems } from "./dashboardNavigation";
 
@@ -7,6 +9,20 @@ export default function DashboardSidebar({
   workspaceLabel = "Vendor workspace",
   navigationLabel = "Vendor dashboard",
 }) {
+  const [expandedItems, setExpandedItems] = useState(() => new Set());
+
+  const toggleItem = (label) => {
+    setExpandedItems((currentItems) => {
+      const nextItems = new Set(currentItems);
+      if (nextItems.has(label)) {
+        nextItems.delete(label);
+      } else {
+        nextItems.add(label);
+      }
+      return nextItems;
+    });
+  };
+
   const linkClassName = ({ isActive }) =>
     `group flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
       isActive
@@ -33,13 +49,31 @@ export default function DashboardSidebar({
         {navigationItems.map((item) => {
           const Icon = item.icon;
           if (item.children) {
+            const isExpanded = expandedItems.has(item.label);
+            const childrenId = `${item.label.toLowerCase().replace(/\s+/g, "-")}-navigation`;
+
             return (
               <div key={item.label} className="py-1">
-                <div className="flex min-h-10 items-center gap-3 px-3 py-2 text-sm font-semibold text-slate-300">
-                  {Icon ? <Icon className="h-5 w-5" /> : null}
-                  {item.label}
-                </div>
-                <div className="ml-5 space-y-1 border-l border-slate-800 pl-3">
+                <button
+                  type="button"
+                  onClick={() => toggleItem(item.label)}
+                  aria-expanded={isExpanded}
+                  aria-controls={childrenId}
+                  className="flex min-h-10 w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-300 transition-colors hover:bg-slate-900 hover:text-white"
+                >
+                  <span className="flex items-center gap-3">
+                    {Icon ? <Icon className="h-5 w-5" /> : null}
+                    {item.label}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                    aria-hidden="true"
+                  />
+                </button>
+                <div
+                  id={childrenId}
+                  className={`${isExpanded ? "mt-1" : "hidden"} ml-5 space-y-1 border-l border-slate-800 pl-3`}
+                >
                   {item.children.map((child) => child.comingSoon ? (
                     <span key={child.label} className="block rounded-md px-3 py-2 text-xs font-semibold text-slate-500" aria-disabled="true">
                       {child.label}
