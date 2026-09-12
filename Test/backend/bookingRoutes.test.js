@@ -82,6 +82,21 @@ describe("booking routes", () => {
       });
     });
 
+    test("fails when admin tries to create a booking", async () => {
+      const adminAuth = authHeader({ id: "admin-1", role: "ADMIN" });
+
+      const res = await request(app)
+        .post("/api/bookings")
+        .set("Authorization", adminAuth)
+        .send({
+          serviceId: "service-1",
+          message: "Need this completed next week",
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.message).toBe("Admins cannot create bookings");
+    });
+
     test("fails when service does not exist", async () => {
       mockPrisma.service.findUnique.mockResolvedValue(null);
 
