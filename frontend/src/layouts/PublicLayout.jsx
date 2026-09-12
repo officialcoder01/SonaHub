@@ -8,6 +8,7 @@ export default function PublicLayout({ children, contentClassName = "" }) {
   const { user, token, logout } = useAuth();
   const isAuthenticated = Boolean(user || token);
   const isVendor = user?.role === "VENDOR";
+  const isAdmin = user?.role === "ADMIN";
 
   const handleLogout = () => {
     logout();
@@ -19,6 +20,7 @@ export default function PublicLayout({ children, contentClassName = "" }) {
       <Navbar
         isAuthenticated={isAuthenticated}
         isVendor={isVendor}
+        isAdmin={isAdmin}
         onLogout={handleLogout}
       />
       <main

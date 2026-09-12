@@ -76,6 +76,10 @@ export const createBooking = async ({ userId, role, serviceId, message }) => {
     const error = new Error("Vendors cannot book their own services");
     error.status = 403;
     throw error;
+  } else if (role === "ADMIN") {
+    const error = new Error("Admins cannot create bookings");
+    error.status = 403;
+    throw error;
   }
 
   return prisma.booking.create({
