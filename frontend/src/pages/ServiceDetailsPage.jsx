@@ -25,7 +25,9 @@ export default function ServiceDetailsPage() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const isAuthenticated = Boolean(user || token);
-  const isNotAuthOrVendorOwnService = !user || (user?.role === "VENDOR" && user?.id === service?.vendor?.user.id);
+  const isNotAuthOrVendorOwnService = !user || 
+    (user?.role === "VENDOR" && user?.id === service?.vendor?.user.id) || 
+    (user?.role === "ADMIN");
  
   //////////////////////////////////////////////////
   // Handle 'Book Now' flow
