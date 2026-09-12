@@ -6,7 +6,7 @@ import logo from "../../assets/images/logo.png";
 
 // This component is intentionally prop-driven so pages can decide
 // what navigation state to show without hiding that logic here.
-export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
+export default function Navbar({ isAuthenticated, isVendor, isAdmin, onLogout }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinkClass = ({ isActive }) =>
@@ -39,8 +39,12 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
         <NavLink to="/dashboard" className={navLinkClass}>
           Dashboard
         </NavLink>
+      ) : isAdmin ? (
+        <NavLink to="/admin/dashboard" className={navLinkClass}>
+          Admin Dashboard
+        </NavLink>
       ) : null}
-      {isAuthenticated ? (
+      {isAuthenticated && !isAdmin ? (
         <NavLink to="/bookings" className={navLinkClass}>
           My Bookings
         </NavLink>
@@ -158,8 +162,16 @@ export default function Navbar({ isAuthenticated, isVendor, onLogout }) {
                 >
                   Dashboard
                 </NavLink>
+              ) : isAdmin ? (
+                <NavLink
+                  to="/admin/dashboard"
+                  className={mobileNavLinkClass}
+                  onClick={closeMenu}
+                >
+                  Admin Dashboard
+                </NavLink>
               ) : null}
-              {isAuthenticated ? (
+              {isAuthenticated && !isAdmin ? (
                 <NavLink
                   to="/bookings"
                   className={mobileNavLinkClass}
