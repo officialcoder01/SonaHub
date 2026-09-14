@@ -2,11 +2,15 @@ const jwt = require("jsonwebtoken");
 const request = require("supertest");
 
 const mockPrisma = {
+  $transaction: jest.fn((callback) => callback(mockPrisma)),
   vendorProfile: {
     findUnique: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
     update: jest.fn(),
+  },
+  activity: {
+    create: jest.fn(),
   },
 };
 
@@ -36,6 +40,42 @@ const app = require("../../backend/src/app.js").default;
 describe("vendor routes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("POST /api/vendors/profile", () => {
+    test("should create a vendor profile and return it in vendorProfile envelope", async () => {
+      const token = jwt.sign({ id: "user-1", role: "VENDOR" }, process.env.JWT_SECRET);
+      const createdProfile = {
+        id: "profile-1",
+        userId: "user-1",
+        businessName: "Jane Events",
+        bio: "Premium event planning",
+        location: "Lagos",
+      };
+
+      mockPrisma.vendorProfile.findUnique.mockResolvedValue(null);
+      mockPrisma.vendorProfile.create.mockResolvedValue(createdProfile);
+
+      const res = await request(app)
+        .post("/api/vendors/profile")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          businessName: "Jane Events",
+          bio: "Premium event planning",
+          location: "Lagos",
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toEqual({ vendorProfile: createdProfile });
+      expect(mockPrisma.vendorProfile.create).toHaveBeenCalledWith({
+        data: {
+          userId: "user-1",
+          businessName: "Jane Events",
+          bio: "Premium event planning",
+          location: "Lagos",
+        },
+      });
+    });
   });
 
   describe("GET /api/vendors/:id", () => {

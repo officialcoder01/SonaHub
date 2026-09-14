@@ -112,7 +112,7 @@ export default function VendorProfileForm({
 
       if (onSuccess) onSuccess(response.vendorProfile || response);
     } catch (err) {
-      setError(err.message || "Unable to create vendor profile");
+      setError(err?.message || "Unable to create vendor profile");
     } finally {
       setIsSubmitting(false);
     }

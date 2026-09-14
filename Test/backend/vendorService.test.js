@@ -1,9 +1,13 @@
 const mockPrisma = {
+  $transaction: jest.fn((callback) => callback(mockPrisma)),
   vendorProfile: {
     findUnique: jest.fn(),
     create: jest.fn(),
     findMany: jest.fn(),
     findFirst: jest.fn(),
+  },
+  activity: {
+    create: jest.fn(),
   },
   booking: {
     groupBy: jest.fn(),
