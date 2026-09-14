@@ -13,8 +13,8 @@ export const validateVendorProfile = [
     .trim()
     .notEmpty()
     .withMessage("Bio is required")
-    .isLength({ min: 10, max: 500 })
-    .withMessage("Bio must be between 10 and 500 characters"),
+    .isLength({ min: 2, max: 500 })
+    .withMessage("Bio must be between 2 and 500 characters"),
 
   body("location")
     .trim()
