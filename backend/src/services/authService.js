@@ -5,6 +5,7 @@
 import bcrypt from "bcrypt";
 import prisma from "../config/prisma.js";
 import { generateToken } from "../utils/generateToken.js";
+import { ActivityType } from "../utils/activityType.js";
 
 // Service function to handle user registration
 export const registerUser = async (data) => {
@@ -16,13 +17,25 @@ export const registerUser = async (data) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role,
-      },
+    let user;
+
+    await prisma.$transaction(async (tx) => {
+      user = await tx.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role,
+        },
+      });
+
+      await tx.activity.create({
+        data: {
+          type: ActivityType.USER_REGISTERED,
+          entityId: user.id,
+          message: `New user registered: ${user.name} (${user.email})`,
+        },
+      });
     });
 
     const token = generateToken(user);
