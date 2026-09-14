@@ -1,6 +1,7 @@
 import prisma from "../config/prisma.js";
 import { calculateReviewStats } from "../utils/ratingUtils.js";
 import { assertVendor } from "../utils/roleCheckUtils.js";
+import { ActivityType } from "../utils/activityType.js";
 
 // Create a vendor profile for 
 // the authenticated user (private endpoint for vendors only)
@@ -23,14 +24,28 @@ export const createVendorProfile = async ({
     throw error;
   }
 
-  return prisma.vendorProfile.create({
-    data: {
-      userId,
-      businessName,
-      bio,
-      location,
-    },
+  let vendorProfile;
+
+  await prisma.$transaction(async (tx) => {
+    vendorProfile = await tx.vendorProfile.create({
+      data: {
+        userId,
+        businessName,
+        bio,
+        location,
+      },
+    });
+
+    await tx.activity.create({
+      data: {
+        type: ActivityType.VENDOR_REGISTERED,
+        entityId: userId,
+        message: `New vendor registered: ${businessName}`,
+      },
+    });
   });
+
+  return vendorProfile;
 };
 
 // Update vendor profile for the authenticated user (private endpoint for vendors only)

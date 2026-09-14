@@ -16,7 +16,7 @@ export const createProfile = async (req, res) => {
       location: req.body.location,
     });
 
-    res.status(201).json(profile);
+    res.status(201).json({ vendorProfile: profile });
   } catch (err) {
     res.status(err.status || 500).json({
       message: err.message || "Unable to create vendor profile",
