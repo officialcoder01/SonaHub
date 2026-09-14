@@ -16,6 +16,7 @@ export default function DashboardHeader({
   const displayName = user?.name || user?.email || "Vendor";
 
   const handleLogout = () => {
+    setIsUserMenuOpen(false);
     logout();
     navigate("/");
   };
@@ -25,10 +26,10 @@ export default function DashboardHeader({
     navigate("/market");
   };
 
-  const logoutFromMenu = () => {
+  const goToHome = () => {
     setIsUserMenuOpen(false);
-    handleLogout();
-  };
+    navigate("/")
+  }
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -125,6 +126,14 @@ export default function DashboardHeader({
                   type="button"
                   className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:bg-slate-50 focus:outline-none"
                   role="menuitem"
+                  onClick={goToHome}
+                >
+                  Home
+                </button>
+                <button
+                  type="button"
+                  className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-950 focus:bg-slate-50 focus:outline-none"
+                  role="menuitem"
                   onClick={openMarketplace}
                 >
                   Marketplace
@@ -133,7 +142,7 @@ export default function DashboardHeader({
                   type="button"
                   className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 focus:bg-red-50 focus:outline-none"
                   role="menuitem"
-                  onClick={logoutFromMenu}
+                  onClick={handleLogout}
                 >
                   Logout
                 </button>
