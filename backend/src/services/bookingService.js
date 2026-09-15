@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { assertCustomer, assertVendor } from "../utils/roleCheckUtils.js";
+import { assertVendor } from "../utils/roleCheckUtils.js";
 
 const notFound = () => {
   const error = new Error("Booking not found");

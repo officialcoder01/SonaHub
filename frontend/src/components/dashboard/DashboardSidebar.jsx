@@ -3,6 +3,7 @@ import { NavLink, Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import logo from "../../assets/images/logo.png";
 import { dashboardNavigationItems } from "./dashboardNavigation";
+import { useAuth } from "../../context/AuthContext";
 
 export default function DashboardSidebar({
   navigationItems = dashboardNavigationItems,
@@ -10,6 +11,7 @@ export default function DashboardSidebar({
   navigationLabel = "Vendor dashboard",
 }) {
   const [expandedItems, setExpandedItems] = useState(() => new Set());
+  const { user } = useAuth();
 
   const toggleItem = (label) => {
     setExpandedItems((currentItems) => {
@@ -123,6 +125,20 @@ export default function DashboardSidebar({
           );
         })}
       </nav>
+      
+      <footer className="absolute bottom-0 w-full border-t border-slate-800 px-5 py-4 bg-gradient-to-r from-slate-800 to-blue-900 text-sm text-slate-500">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-slate-700">
+            <span className="flex h-full w-full items-center justify-center text-xs font-bold text-white">
+              {user?.name?.slice(0, 1).toUpperCase() || "U"}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="truncate font-semibold text-slate-200">{user?.name}</span>
+            <span className="truncate text-xs text-slate-400">{user?.email}</span>
+          </div>
+        </div>
+      </footer>
     </aside>
   );
 }

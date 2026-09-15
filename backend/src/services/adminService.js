@@ -49,7 +49,7 @@ export const getAdminDashboard = async ({role}) => {
             orderBy: {
                 createdAt: "desc",
             },
-            take: 8,
+            take: 5,
         }),
 
         prisma.category.findMany({
