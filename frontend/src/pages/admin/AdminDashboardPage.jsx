@@ -102,7 +102,7 @@ export default function AdminDashboardPage() {
             <header>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Dashboard</p>
               <h1 className="mt-2">Welcome back, {user?.name || "Admin"}</h1>
-              <p className="mt-2 max-w-2xl text-sm">Here is a clear view of your marketplace activity and vendor verification queue.</p>
+              <p className="mt-2 max-w-2xl text-sm">Here is an overview of your marketplace activity.</p>
             </header>
 
             <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Marketplace statistics">
@@ -159,7 +159,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <h2>Services By Category</h2>
+              <h2>Top Categories</h2>
               <p className="mt-1 text-sm">Active services in your most populated categories.</p>
               {categories.length ? (
                 <div className="mt-6 space-y-5">
