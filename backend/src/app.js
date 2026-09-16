@@ -12,7 +12,6 @@ import recommendationRoutes from "./routes/recommendationRoute.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
-const port = Number(process.env.PORT) || 3000;
 
 // Detect whether the server is running in its deployed configuration.
 const isProduction = process.env.NODE_ENV === 'production';
@@ -159,21 +158,5 @@ app.use((err, req, res, next) => {
     error: err.message || "Internal server error",
   });
 });
-
-if (process.env.NODE_ENV !== "test") {
-  const server = app.listen(port, () => {
-    console.log(`Backend server listening on port ${port}`);
-  });
-
-  const shutdown = (signal) => {
-    console.log(`${signal} received. Shutting down server...`);
-    server.close(() => {
-      process.exit(0);
-    });
-  };
-
-  process.on("SIGINT", () => shutdown("SIGINT"));
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
-}
 
 export default app;
