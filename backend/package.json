@@ -4,7 +4,7 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
-    "start": "node dist/src/server.js",
+    "start": "node dist/server.js",
     "dev": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
