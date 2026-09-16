@@ -3,13 +3,17 @@
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "rootDir": ".",
+
+    "rootDir": "src",
     "outDir": "dist",
+
     "allowJs": true,
     "checkJs": false,
+
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+
     "sourceMap": true,
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true
@@ -17,13 +21,9 @@
   "include": [
     "src/**/*.js",
     "src/**/*.ts",
-    "api/**/*.js",
-    "seed.js"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "prisma/migrations",
-    "Test"
   ]
 }
