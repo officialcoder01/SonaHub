@@ -97,7 +97,7 @@ const loginLimiter = rateLimit({
     handler: (req, res) => {
         res.status(429).json({
             success: false,
-            message: "Too many login attempts, please try again later."
+            message: "Too many login attempts, please try again in 1 minute."
         });
     }
 })
