@@ -32,7 +32,7 @@ jest.mock("../../backend/src/config/cloudinary.js", () => ({
 
 process.env.JWT_SECRET = "test-secret";
 
-const app = require("../../backend/src/app.js").default;
+const app = require("../../backend/src/app.ts").default;
 
 ///////////////////////////////////////////////////////////
 // Token helpers — mirror the pattern in bookingRoutes.test.js.
