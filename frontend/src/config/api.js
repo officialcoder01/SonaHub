@@ -4,7 +4,8 @@ export const handleResponse = async (response) => {
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || "Request failed");
+    const validationMessage = result.errors?.[0]?.message;
+    throw new Error(validationMessage || result.message || "Request failed");
   }
 
   return result;
