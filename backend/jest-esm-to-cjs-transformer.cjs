@@ -1,5 +1,19 @@
 const transformImportsAndExports = (source) => {
-  let output = source;
+  let output = source
+    .replace(/^import\s+type\s+[^;]+;?$/gm, "")
+    .replace(/^export\s+type\s+[^;]+;?$/gm, "")
+    .replace(/^interface\s+[A-Za-z0-9_$]+\s*\{[\s\S]*?^\}/gm, "")
+    .replace(/import\s+\{\s*Prisma,\s*User,\s*Role\s*\}\s+from\s+["']@prisma\/client["'];?/g, "")
+    .replace(/\?\s*:\s*string/g, "")
+    .replace(/:\s*(CorsOptions|ErrorRequestHandler|string|boolean|number)(?=\s*[,)=;{])/g, "")
+    .replace(/:\s*(RegisterUserData|LoginUserData|User|Role|unknown)(?=\s*[,)=;{])/g, "")
+    .replace(/:\s*User\s*\|\s*null/g, "")
+    .replace(/\):\s*string\s*\|\s*null/g, ")")
+    .replace(/\):\s*boolean/g, ")")
+    .replace(/\):\s*Promise<[^>]+>/g, ")")
+    .replace(/:\s*Prisma\.TransactionClient(?=\s*\))/g, "")
+    .replace(/\s+as\s+const\b/g, "")
+    .replace(/\(allowedOrigin\):\s*allowedOrigin\s+is\s+string/g, "(allowedOrigin)");
 
   output = output.replace(
     /^import\s+["']([^"']+)["'];?$/gm,
