@@ -22,7 +22,7 @@ jest.mock("../../backend/src/config/cloudinary.js", () => ({
   },
 }));
 
-const app = require("../../backend/src/app.js").default;
+const app = require("../../backend/src/app.ts").default;
 
 describe("GET /api/recommendations/top-rated-vendors", () => {
   beforeEach(() => {
