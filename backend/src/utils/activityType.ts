@@ -5,4 +5,6 @@ export const ActivityType = {
     VENDOR_VERIFIED: "VENDOR_VERIFIED",
     SERVICE_FEATURED: "SERVICE_FEATURED",
     VENDOR_FEATURED: "VENDOR_FEATURED",
-}
+} as const;
+
+export type ActivityType = typeof ActivityType[keyof typeof ActivityType];

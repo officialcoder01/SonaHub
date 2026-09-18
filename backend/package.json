@@ -4,8 +4,12 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node dist/server.js",
+    "dev": "nodemon --exec tsx src/server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "build:run": "npm run clean && npm run build && npm start",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "test": "cross-env NODE_ENV=test jest --runInBand"
@@ -26,16 +30,21 @@
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0",
     "streamifier": "^0.1.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^22.20.3",
+    "@types/streamifier": "^0.1.2",
     "cross-env": "^10.1.0",
     "jest": "^30.3.0",
     "nodemon": "^3.1.10",
     "prisma": "^7.8.0",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "typescript": "^7.0.2"
   }
 }
