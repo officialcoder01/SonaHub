@@ -16,7 +16,9 @@ import adminRoutes from "./routes/adminRoutes.js";
 const app = express();
 
 // Detect whether the server is running in its deployed configuration.
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = 
+  process.env.NODE_ENV === "production" ||
+  process.env.VERCEL_ENV === "production";
 
 function sanitizeOriginValue(origin: string): string {
   return origin.trim().replace(/^['"]+|['"]+$/g, "");
