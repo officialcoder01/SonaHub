@@ -3,8 +3,23 @@
 ///////////////////////////////////
 
 import jwt from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
 
-export const requireAuth = (req, res, next) => {
+
+interface UserPayload {
+  id: string;
+  role: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: UserPayload;
+    }
+  }
+}
+
+export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ")
     ? authHeader.slice("Bearer ".length)
@@ -15,7 +30,12 @@ export const requireAuth = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      throw new Error("JWT_SECRET is not configured");
+    }
+    req.user = jwt.verify(token, secret) as UserPayload;
     return next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
