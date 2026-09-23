@@ -7,12 +7,6 @@ interface imageFile {
   mimetype: string;
 }
 
-interface UploadResult {
-  secure_url: string;
-  url: string;
-  public_id: string;
-}
-
 interface ImageUploadError extends Error {
   status?: number;
 
