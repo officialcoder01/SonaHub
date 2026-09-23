@@ -3,7 +3,12 @@ interface Review {
   rating: number;
 }
 
-export const calculateReviewStats = (reviews: Review[] = []) => {
+interface ReviewStats {
+  averageRating: number;
+  totalReviews: number;
+}
+
+export const calculateReviewStats = (reviews: Review[] = []): ReviewStats => {
   if (reviews.length === 0) {
     return {
       averageRating: 0,
