@@ -1,12 +1,29 @@
 import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
+interface imageFile {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+}
+
+interface UploadResult {
+  secure_url: string;
+  url: string;
+  public_id: string;
+}
+
+interface ImageUploadError extends Error {
+  status?: number;
+
+}
+
 // Upload a single service image to Cloudinary and return the URL
-const uploadServiceImage = async (file) => {
+const uploadServiceImage = async (file: imageFile) => {
   if (!file) return null;
 
   return new Promise((resolve, reject) => {
-    const uploader = cloudinary.v2?.uploader || cloudinary.uploader;
+    const uploader = cloudinary.uploader;
 
     if (!uploader?.upload_stream) {
       reject(new Error("Cloudinary upload is not configured"));
@@ -27,6 +44,11 @@ const uploadServiceImage = async (file) => {
           return;
         }
 
+        if (!result) {
+          reject(new Error("Cloudinary upload returned no result"));
+          return;
+        }
+
         resolve(result.secure_url || result.url);
       }
     );
@@ -43,9 +65,9 @@ const uploadServiceImage = async (file) => {
 
 
 // Upload multiple service images and return an array of URLs
-export const uploadServiceImages = async (files = []) => {
+export const uploadServiceImages = async (files: imageFile[] = []) => {
   if (files.length > 3) {
-    const error = new Error("A service can have a maximum of 3 images");
+    const error = new Error("A service can have a maximum of 3 images") as ImageUploadError;
     error.status = 400;
     throw error;
   }
