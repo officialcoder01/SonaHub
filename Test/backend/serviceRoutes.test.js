@@ -52,12 +52,7 @@ jest.mock("../../backend/src/config/cloudinary.js", () => ({
   __esModule: true,
   default: {
     uploader: {
-      upload_stream: legacyUploadStream,
-    },
-    v2: {
-      uploader: {
-        upload_stream: uploadStream,
-      },
+      upload_stream: uploadStream,
     },
   },
 }));
