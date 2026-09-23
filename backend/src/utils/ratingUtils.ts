@@ -1,5 +1,9 @@
 // Build review stats from the vendor reviews already included with the service query.
-export const calculateReviewStats = (reviews = []) => {
+interface Review {
+  rating: number;
+}
+
+export const calculateReviewStats = (reviews: Review[] = []) => {
   if (reviews.length === 0) {
     return {
       averageRating: 0,
