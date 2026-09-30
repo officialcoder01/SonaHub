@@ -1,7 +1,41 @@
 import prisma from "../config/prisma.js";
 import { assertAdmin } from "../utils/roleCheckUtils.js";
+import type { Activity, Role, VendorProfile } from "@prisma/client";
 
-export const getAdminDashboard = async ({role}) => {
+interface GetAdminDashboardInput {
+    role: Role;
+}
+
+type PendingVendor = VendorProfile & {
+    user: {
+        name: string;
+        email: string;
+    };
+};
+
+type ServiceCategory = {
+    id: string;
+    name: string;
+    _count: {
+        services: number;
+    };
+};
+
+export interface AdminDashboard {
+    stats: {
+        totalUsers: number;
+        pendingVerification: number;
+        verifiedVendors: number;
+        totalServices: number;
+    };
+    pendingVendors: PendingVendor[];
+    recentActivities: Activity[];
+    servicesByCategory: ServiceCategory[];
+}
+
+export const getAdminDashboard = async (
+    { role }: GetAdminDashboardInput
+): Promise<AdminDashboard> => {
     assertAdmin(role, "You don't have permission!");
 
     const [
@@ -12,6 +46,14 @@ export const getAdminDashboard = async ({role}) => {
         pendingVendors,
         recentActivities,
         servicesByCategory
+    ]: [
+        number,
+        number,
+        number,
+        number,
+        PendingVendor[],
+        Activity[],
+        ServiceCategory[]
     ] = await Promise.all([
         prisma.user.count(),
 
