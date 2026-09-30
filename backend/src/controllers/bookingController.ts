@@ -8,11 +8,23 @@ import {
   rejectBooking,
 } from "../services/bookingService.js";
 import type { Request, Response } from "express";
-import type { Booking, Role } from "@prisma/client";
 
-const sendError = (res: Response, err: unknown, fallbackMessage: string) => {
-  const message = err instanceof Error ? err.message : fallbackMessage;
-  res.status(500).json({ message });
+const sendError = (
+  res: Response,
+  err: unknown,
+  fallbackMessage: string
+) => {
+  const message = err instanceof Error ?
+    err.message : fallbackMessage;
+
+  const status =
+    typeof err === "object" &&
+    err !== null && "status" in err &&
+    typeof err.status === "number"
+      ? err.status
+      : 500;
+
+  return res.status(status).json({ message });
 };
 
 export const createBookingRequest = async (
@@ -20,7 +32,9 @@ export const createBookingRequest = async (
   res: Response
 ) => {
   if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({
+      message: "Unauthorized"
+    });
   }
 
   try {
@@ -42,7 +56,9 @@ export const listMyBookings = async (
   res: Response
 ) => {
   if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({
+      message: "Unauthorized"
+    });
   }
 
   try {
