@@ -10,6 +10,45 @@ import { calculateReviewStats } from "../utils/ratingUtils.js";
 import { uploadServiceImages } from "../utils/imageUploadUtils.js";
 import { validateServiceFields } from "../validators/serviceDetailFieldValidator.js";
 import { assertVendor } from "../utils/roleCheckUtils.js";
+import type { Prisma } from "@prisma/client";
+import type { Express } from "express";
+
+type ServiceFields = {
+  title: string;
+  description: string;
+  price: number | string;
+  categoryId: string;
+};
+
+type ServiceError = Error & { status?: number };
+
+type ServiceRequest = {
+  userId: string;
+  role: string;
+  data: ServiceFields;
+  files?: Express.Multer.File[];
+};
+
+type ServiceOwnerRequest = {
+  serviceId: string;
+  userId: string;
+  role: string;
+};
+
+type ServiceListFilters = {
+  category?: string;
+  search?: string;
+  location?: string;
+  sort?: "newest" | "oldest";
+  page?: number;
+  limit?: number;
+};
+
+const createError = (message: string, status: number): ServiceError => {
+  const error: ServiceError = new Error(message);
+  error.status = status;
+  return error;
+};
 
 // Retrieve all categories
 export const getAllCategories = async () => {
@@ -30,7 +69,7 @@ export const getAllCategories = async () => {
 };
 
 // Service creation logic, including vendor checks and image uploads
-export const createService = async ({ userId, role, data, files = [] }) => {
+export const createService = async ({ userId, role, data, files = [] }: ServiceRequest) => {
   assertVendor(role, "Only vendors can create services");
 
   const validatedData = validateServiceFields(data);
@@ -40,13 +79,11 @@ export const createService = async ({ userId, role, data, files = [] }) => {
   });
 
   if (!vendorProfile) {
-    const error = new Error("Vendor profile is required to create services");
-    error.status = 403;
-    throw error;
+    throw createError("Vendor profile is required to create services", 403);
   }
 
-  const imageUrls = await uploadServiceImages(files);
-  const serviceData = {
+  const imageUrls = (await uploadServiceImages(files)) as string[];
+  const serviceData: Prisma.ServiceUncheckedCreateInput = {
     vendorId: vendorProfile.id,
     title: validatedData.title,
     description: validatedData.description,
@@ -70,7 +107,7 @@ export const createService = async ({ userId, role, data, files = [] }) => {
 
 // Retrieve all services with vendor info and images
 // this is for authenticated vendors only (private endpoint)
-export const getVendorServices = async ({ userId, role }) => {
+export const getVendorServices = async ({ userId, role }: Omit<ServiceRequest, "data" | "files">) => {
   assertVendor(role, "Only vendors can view their services");
 
   const vendorProfile = await prisma.vendorProfile.findUnique({
@@ -78,9 +115,7 @@ export const getVendorServices = async ({ userId, role }) => {
   });
 
   if (!vendorProfile) {
-    const error = new Error("Vendor profile is required to view services");
-    error.status = 403;
-    throw error;
+    throw createError("Vendor profile is required to view services", 403);
   }
 
   return prisma.service.findMany({
@@ -104,7 +139,7 @@ export const getVendorServices = async ({ userId, role }) => {
 
 // Update service to archieved because deleting the service
 // will delete the booking record and reviews
-export const updateService = async ({ serviceId, userId, role }) => {
+export const updateService = async ({ serviceId, userId, role }: ServiceOwnerRequest) => {
   assertVendor(role, "Only vendors can update their services");
 
   const service = await prisma.service.findUnique({
@@ -115,15 +150,11 @@ export const updateService = async ({ serviceId, userId, role }) => {
   });
 
   if (!service) {
-    const error = new Error("Service not found");
-    error.status = 404;
-    throw error;
+    throw createError("Service not found", 404);
   }
 
   if (service.vendor.userId !== userId) {
-    const error = new Error("You do not have permission to delete this service");
-    error.status = 403;
-    throw error;
+    throw createError("You do not have permission to delete this service", 403);
   }
 
   return prisma.service.update({
@@ -134,7 +165,7 @@ export const updateService = async ({ serviceId, userId, role }) => {
   });
 };
 
-export const editService = async ({ serviceId, userId, role, data, files = [] }) => {
+export const editService = async ({ serviceId, userId, role, data, files = [] }: ServiceOwnerRequest & Omit<ServiceRequest, "userId" | "role">) => {
   assertVendor(role, "Only vendors can edit their services");
 
   const service = await prisma.service.findUnique({
@@ -149,20 +180,16 @@ export const editService = async ({ serviceId, userId, role, data, files = [] })
   });
 
   if (!service) {
-    const error = new Error("Service not found");
-    error.status = 404;
-    throw error;
+    throw createError("Service not found", 404);
   }
 
   if (service.vendor.userId !== userId) {
-    const error = new Error("You do not have permission to edit this service");
-    error.status = 403;
-    throw error;
+    throw createError("You do not have permission to edit this service", 403);
   }
 
   const validatedData = validateServiceFields(data);
-  const imageUrls = await uploadServiceImages(files);
-  const serviceData = {
+  const imageUrls = (await uploadServiceImages(files)) as string[];
+  const serviceData: Prisma.ServiceUncheckedUpdateInput = {
     title: validatedData.title,
     description: validatedData.description,
     price: validatedData.price,
@@ -193,7 +220,7 @@ export const getAllServices = async ({
   sort = "newest",
   page = 1,
   limit = 12,
-} = {}) => {
+}: ServiceListFilters = {}) => {
   const normalizedCategory = typeof category === "string" ? category.trim() : "";
   const normalizedSearch = typeof search === "string" ? search.trim() : "";
   const normalizedLocation = typeof location === "string" ? location.trim() : "";
@@ -202,7 +229,7 @@ export const getAllServices = async ({
   // Build one reusable Prisma where clause so the count
   // and paginated query always represent the same result set.
   //////////////////////////////////////////////////
-  const where = {
+  const where: Prisma.ServiceWhereInput = {
     isArchived: false,
   };
 
@@ -266,7 +293,14 @@ export const getAllServices = async ({
     }),
   ]);
 
-  const servicesWithReviewStats = services.map((service) => {
+  const servicesWithReviewStats = services.map((service: Prisma.ServiceGetPayload<{
+    include: {
+      images: true;
+      category: { select: { id: true; name: true } };
+      reviews: { select: { rating: true } };
+      vendor: { select: { businessName: true; location: true } };
+    };
+  }>) => {
     const reviewStats = calculateReviewStats(service.reviews);
     return {
       ...service,
@@ -349,12 +383,12 @@ const relatedServiceSelect = {
   },
 };
 
-const mapRelatedService = ({ reviews, ...service }) => ({
+const mapRelatedService = ({ reviews, ...service }: Prisma.ServiceGetPayload<{ select: typeof relatedServiceSelect }>) => ({
   ...service,
   reviewStats: calculateReviewStats(reviews),
 });
 
-const mapServiceDetails = (service) => {
+const mapServiceDetails = (service: Prisma.ServiceGetPayload<{ include: typeof serviceDetailsInclude }>) => {
   const { reviews: vendorReviews, ...vendor } = service.vendor;
 
   return {
@@ -375,7 +409,7 @@ const mapServiceDetails = (service) => {
 };
 
 // Retrieve a single public service details payload for the Service Details page.
-export const getServiceDetailsById = async (serviceId) => {
+export const getServiceDetailsById = async (serviceId: string) => {
   const service = await prisma.service.findFirst({
     where: {
       id: serviceId,
@@ -385,9 +419,7 @@ export const getServiceDetailsById = async (serviceId) => {
   });
 
   if (!service) {
-    const error = new Error("Service not found");
-    error.status = 404;
-    throw error;
+    throw createError("Service not found", 404);
   }
 
   const relatedServices = await prisma.service.findMany({
@@ -408,18 +440,16 @@ export const getServiceDetailsById = async (serviceId) => {
 };
 
 // Pin service for a vendor's profile page
-export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
+export const pinServiceForVendor = async ({ userId, role, serviceId }: ServiceOwnerRequest) => {
     await assertVendor(role, "You are not authorized to pin services for this vendor.");
 
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const vendor = await tx.vendorProfile.findUnique({
         where: { userId },
       });
 
       if (!vendor) {
-        const error = new Error("Vendor profile is required to pin services");
-        error.status = 403;
-        throw error;
+        throw createError("Vendor profile is required to pin services", 403);
       }
 
       const service = await tx.service.findFirst({
@@ -431,9 +461,7 @@ export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
       });
 
       if (!service) {
-        const error = new Error("Service not found or not owned by vendor");
-        error.status = 404;
-        throw error;
+        throw createError("Service not found or not owned by vendor", 404);
       }
 
       if (service.isPinned) {
@@ -449,9 +477,7 @@ export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
       });
 
       if (pinCount >= 5) {
-        const error = new Error("You can only pin up to 5 services at a time.");
-        error.status = 400;
-        throw error;
+        throw createError("You can only pin up to 5 services at a time.", 400);
       }
 
       return tx.service.update({
@@ -462,18 +488,16 @@ export const pinServiceForVendor = async ({ userId, role, serviceId }) => {
 };
 
 // Unpin service for a vendor's profile page
-export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
+export const unpinServiceForVendor = async ({ userId, role, serviceId }: ServiceOwnerRequest) => {
   await assertVendor(role, "You are not authorized to unpin services for this vendor.");
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const vendor = await tx.vendorProfile.findUnique({
       where: { userId },
     });
 
     if (!vendor) {
-      const error = new Error("Vendor profile is required to unpin services");
-      error.status = 403;
-      throw error;
+      throw createError("Vendor profile is required to unpin services", 403);
     }
 
     const service = await tx.service.findFirst({
@@ -485,9 +509,7 @@ export const unpinServiceForVendor = async ({ userId, role, serviceId }) => {
     });
 
     if (!service) {
-      const error = new Error("Service not found or not owned by vendor");
-      error.status = 404;
-      throw error;
+      throw createError("Service not found or not owned by vendor", 404);
     }
 
     if (!service.isPinned) {
