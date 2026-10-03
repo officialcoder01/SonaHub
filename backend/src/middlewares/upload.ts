@@ -16,7 +16,7 @@ const fileFilter: multer.Options["fileFilter"] = (
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error("Only JPEG, PNG, WebP, and GIF files are allowed"), false);
+        cb(null, false);
     }
 };
 
