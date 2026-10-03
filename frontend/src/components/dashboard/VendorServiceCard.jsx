@@ -54,10 +54,7 @@ export default function VendorServiceCard({
   };
 
   return (
-    <article className="group flex h-full min-h-[282px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      aria-label={`View details for ${service.title}`}
-      onClick={openServiceDetails}
-    >
+    <article className="group flex h-full min-h-[282px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
         {imageUrl ? (
           <img
@@ -65,9 +62,15 @@ export default function VendorServiceCard({
             alt={service.title}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             loading="lazy"
+            aria-label={`View details for ${service.title}`}
+            onClick={openServiceDetails}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-slate-100 px-4 text-center text-sm font-semibold text-slate-400">
+          <div
+            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-slate-100 px-4 text-center text-sm font-semibold text-slate-400"
+            aria-label={`View details for ${service.title}`}
+            onClick={openServiceDetails}
+          >
             No image added
           </div>
         )}
