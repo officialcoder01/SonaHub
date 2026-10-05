@@ -1,0 +1,106 @@
+import prisma from '../config/prisma.js';
+import { Prisma } from '@prisma/client'
+
+type TopRatedVendorRequest = {
+    id: string;
+    businessName: string;
+    location: string;
+    status: boolean;
+    user: {
+        name: string;
+    };
+    completedJobs: number;
+    averageRating: number;
+    reviewCount: number;
+}
+
+// Retrieve top-rated vendors based on average rating and number of reviews
+export const getTopRatedVendors = async (): Promise<TopRatedVendorRequest> => {
+    return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const reviewStats = await tx.review.groupBy({
+            by: ["vendorId"],
+            _avg: {
+                rating: true,
+            },
+            _count: {
+                rating: true,
+            },
+            orderBy: [
+                {
+                    _avg: {
+                        rating: "desc",
+                    },
+                },
+                {
+                    _count: {
+                        rating: "desc",
+                    },
+                },
+            ],
+            having: {
+                rating: {
+                    _count: {
+                        gte: 3,
+                    }
+                }
+            },
+            take: 3,
+        });
+
+        const vendors = await tx.vendorProfile.findMany({
+            where: {
+                id: {
+                    in: reviewStats.map((r) => r.vendorId),
+                },
+            },
+            select: {
+                id: true,
+                businessName: true,
+                location: true,
+                status: true,
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        bookings: {
+                            where: { status: "COMPLETED" }
+                        }
+                    },
+                }
+            },
+        });
+
+        const vendorMap = new Map(
+            vendors.map((vendor) => [
+                vendor.id,
+                {
+                    id: vendor.id,
+                    businessName: vendor.businessName,
+                    location: vendor.location,
+                    status: vendor.status,
+                    user: vendor.user,
+                    completedJobs: vendor._count.bookings
+                },
+            ])
+        );
+
+        return reviewStats
+            .slice(0, 3)
+            .map((stat) => {
+                const vendor = vendorMap.get(stat.vendorId);
+                if (!vendor) {
+                    return null;
+                }
+
+                return {
+                    ...vendor,
+                    averageRating: Number(stat._avg.rating?.toFixed(1) ?? 0),
+                    reviewCount: stat._count.rating,
+                };
+            })
+            .filter(Boolean);
+    });
+};
