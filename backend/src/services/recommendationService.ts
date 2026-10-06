@@ -1,21 +1,8 @@
 import prisma from '../config/prisma.js';
 import { Prisma } from '@prisma/client'
 
-type TopRatedVendorRequest = {
-    id: string;
-    businessName: string;
-    location: string;
-    status: boolean;
-    user: {
-        name: string;
-    };
-    completedJobs: number;
-    averageRating: number;
-    reviewCount: number;
-}
-
 // Retrieve top-rated vendors based on average rating and number of reviews
-export const getTopRatedVendors = async (): Promise<TopRatedVendorRequest> => {
+export const getTopRatedVendors = async () => {
     return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const reviewStats = await tx.review.groupBy({
             by: ["vendorId"],
