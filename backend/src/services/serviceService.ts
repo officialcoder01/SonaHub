@@ -10,32 +10,33 @@ import { calculateReviewStats } from "../utils/ratingUtils.js";
 import { uploadServiceImages } from "../utils/imageUploadUtils.js";
 import { validateServiceFields } from "../validators/serviceDetailFieldValidator.js";
 import { assertVendor } from "../utils/roleCheckUtils.js";
-import type { Prisma } from "@prisma/client";
-import type { Express } from "express";
+import type { Prisma, Role } from "@prisma/client";
 
-type ServiceFields = {
+interface ServiceFields {
   title: string;
   description: string;
   price: number | string;
   categoryId: string;
 };
 
-type ServiceError = Error & { status?: number };
+interface ServiceError extends Error {
+  status?: number;
+}
 
-type ServiceRequest = {
+interface ServiceRequest {
   userId: string;
-  role: string;
+  role: Role;
   data: ServiceFields;
   files?: Express.Multer.File[];
 };
 
-type ServiceOwnerRequest = {
+interface ServiceOwnerRequest {
   serviceId: string;
   userId: string;
-  role: string;
+  role: Role;
 };
 
-type ServiceListFilters = {
+interface ServiceListFilters {
   category?: string;
   search?: string;
   location?: string;
