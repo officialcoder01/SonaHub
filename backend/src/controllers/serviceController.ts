@@ -10,6 +10,11 @@ import {
   unpinServiceForVendor,
 } from "../services/serviceService.js";
 import type { Request, Response } from "express";
+import type { Role } from "@prisma/client";
+
+interface SendError extends Error {
+  status?: number;
+}
 
 const getAuthenticatedUser = (req: Request) => {
   if (!req.user) {
@@ -33,7 +38,7 @@ export const createServiceListing = async (req: Request, res: Response) => {
     const user = getAuthenticatedUser(req);
     const service = await createService({
       userId: user.id,
-      role: user.role,
+      role: user.role as Role,
       data: req.body,
       files: getUploadedFiles(req),
     });
@@ -42,9 +47,10 @@ export const createServiceListing = async (req: Request, res: Response) => {
       message: "Service created successfully",
       service,
     });
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to create service",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to create service",
     });
   }
 };
@@ -55,10 +61,17 @@ export const pinService = async (req: Request, res: Response) => {
 
     try {
         const { id: userId, role } = getAuthenticatedUser(req);
-        const updatedService = await pinServiceForVendor({ userId, role, serviceId });
+        const updatedService = await pinServiceForVendor({
+          userId,
+          role: role as Role,
+          serviceId
+        });
         res.status(200).json(updatedService);
-    } catch (error: any) {
-        res.status(error.status || 500).json({ message: error.message || 'Internal server error' });
+    } catch (error: unknown) {
+        const typedError = error as SendError;
+        res.status(typedError.status || 500).json({
+          message: typedError.message || 'Internal server error'
+        });
     }
 };
 
@@ -68,10 +81,17 @@ export const unpinService = async (req: Request, res: Response) => {
 
     try {
         const { id: userId, role } = getAuthenticatedUser(req);
-        const updatedService = await unpinServiceForVendor({ userId, role, serviceId });
+        const updatedService = await unpinServiceForVendor({
+          userId,
+          role: role as Role,
+          serviceId
+        });
         res.status(200).json(updatedService);
-    } catch (error: any) {
-        res.status(error.status || 500).json({ message: error.message || 'Internal server error' });
+    } catch (error: unknown) {
+        const typedError = error as SendError;
+        res.status(typedError.status || 500).json({
+          message: typedError.message || 'Internal server error'
+        });
     }
 };
 
@@ -103,9 +123,10 @@ export const listServices = async (req: Request, res: Response) => {
       services,
       pagination,
     });
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to fetch services",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to fetch services",
     });
   }
 };
@@ -116,9 +137,10 @@ export const getServiceDetails = async (req: Request, res: Response) => {
     const details = await getServiceDetailsById(getRouteId(req));
 
     res.status(200).json(details);
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to fetch service",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to fetch service",
     });
   }
 };
@@ -130,15 +152,16 @@ export const listMyServices = async (req: Request, res: Response) => {
     const user = getAuthenticatedUser(req);
     const services = await getVendorServices({
       userId: user.id,
-      role: user.role,
+      role: user.role as Role,
     });
 
     res.status(200).json({
       services,
     });
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to fetch vendor services",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to fetch vendor services",
     });
   }
 };
@@ -150,15 +173,16 @@ export const updateServiceListing = async (req: Request, res: Response) => {
     await updateService({
       serviceId: getRouteId(req),
       userId: user.id,
-      role: user.role,
+      role: user.role as Role,
     });
 
     res.status(200).json({
       message: "Service deleted successfully",
     });
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to delete service",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to delete service",
     });
   }
 };
@@ -169,15 +193,16 @@ export const editServiceListing = async (req: Request, res: Response) => {
     const updatedService = await editService({
       serviceId: getRouteId(req),
       userId: user.id,
-      role: user.role,
+      role: user.role as Role,
       data: req.body,
       files: getUploadedFiles(req),
     });
 
     res.status(200).json(updatedService);
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to edit service",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to edit service",
     });
   }
 };
@@ -190,9 +215,10 @@ export const getCategories = async (req: Request, res: Response) => {
     res.status(200).json({
       categories,
     });
-  } catch (err: any) {
-    res.status(err.status || 500).json({
-      message: err.message || "Unable to fetch categories",
+  } catch (err: unknown) {
+    const typedError = err as SendError;
+    res.status(typedError.status || 500).json({
+      message: typedError.message || "Unable to fetch categories",
     });
   }
 };
