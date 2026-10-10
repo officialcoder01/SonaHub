@@ -3,16 +3,21 @@
 //////////////////////////////////
 
 import "dotenv/config";
-import prismaClientPkg from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const { PrismaClient } = prismaClientPkg;
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+};
 
-const globalForPrisma = globalThis;
 const connectionString =
   process.env.NODE_ENV === "test" && process.env.DATABASE_URL_TEST
     ? process.env.DATABASE_URL_TEST
     : process.env.DATABASE_URL;
+
+if (typeof connectionString !== "string") {
+  throw new Error("DATABASE_URL or DATABASE_URL_TEST is not defined!")
+} 
 
 const adapter = new PrismaPg(connectionString);
 
