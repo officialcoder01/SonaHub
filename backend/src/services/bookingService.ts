@@ -3,7 +3,7 @@ import { assertVendor } from "../utils/roleCheckUtils.js";
 import type { VendorProfile, Booking } from "@prisma/client"
 
 interface BookingStatusCounts {
-  bookings: Booking;
+  bookings: Booking[];
   statusCounts: {
     pending: number;
     accepted: number;
@@ -38,21 +38,20 @@ interface BookingError extends Error {
   status?: number;
 }
 
-const notFound = () => {
-  const error = new Error("Booking not found") as BookingError;
-  error.status = 404;
-  throw error;
-};
-
-const getVendorProfile = async (userId: string, role: string): Promise<VendorProfile> => {
+const getVendorProfile = async (
+  userId: string,
+  role: string
+): Promise<VendorProfile> => {
   assertVendor(role, "Only vendors can manage their bookings");
 
-  const vendorProfile: VendorProfile = await prisma.vendorProfile.findUnique({
+  const vendorProfile = await prisma.vendorProfile.findUnique({
     where: { userId },
   });
 
   if (!vendorProfile) {
-    const error = new Error("Vendor profile is required to manage bookings") as BookingError;
+    const error = new Error(
+      "Vendor profile is required to manage bookings"
+    ) as BookingError;
     error.status = 403;
     throw error;
   }
@@ -61,12 +60,16 @@ const getVendorProfile = async (userId: string, role: string): Promise<VendorPro
 };
 
 const getBookingById = async (bookingId: string): Promise<Booking> => {
-  const booking: Booking = await prisma.booking.findUnique({
+  const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
   });
 
   if (!booking) {
-    notFound();
+    const error = new Error(
+      "Booking not found"
+    ) as BookingError;
+    error.status = 403;
+    throw error;
   }
 
   return booking;
