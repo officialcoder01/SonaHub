@@ -269,7 +269,7 @@ export const getAllServices = async ({
   const pageSize = limit;
   const currentPage = page;
   const skip = (currentPage - 1) * pageSize;
-  const orderBy = {
+  const orderBy: Prisma.ServiceOrderByWithRelationInput = {
     createdAt: sort === "oldest" ? "asc" : "desc",
   };
 
@@ -294,14 +294,7 @@ export const getAllServices = async ({
     }),
   ]);
 
-  const servicesWithReviewStats = services.map((service: Prisma.ServiceGetPayload<{
-    include: {
-      images: true;
-      category: { select: { id: true; name: true } };
-      reviews: { select: { rating: true } };
-      vendor: { select: { businessName: true; location: true } };
-    };
-  }>) => {
+  const servicesWithReviewStats = services.map((service) => {
     const reviewStats = calculateReviewStats(service.reviews);
     return {
       ...service,
