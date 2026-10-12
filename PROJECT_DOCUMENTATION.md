@@ -33,7 +33,6 @@ The following are present in the schema or navigation but are not complete produ
 - `Message` records exist in Prisma, but there are no API routes or UI for messaging.
 - The vendor dashboard's Reviews and Settings pages are placeholders.
 - The Analytics page is a lightweight placeholder/stat display, not a reporting system.
-- `BookingStatus.IN_PROGRESS` exists in the database enum, but the current API has no transition that sets it.
 - `Service.isFeatured` exists in the database but is not used by current API queries or UI. The feature control used by the product is `Service.isPinned`.
 - There are no payment, vendor-verification workflow, notifications, or messaging endpoints yet.
 
