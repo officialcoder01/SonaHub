@@ -35,7 +35,6 @@ The following are present in the schema or navigation but are not complete produ
 - The Analytics page is a lightweight placeholder/stat display, not a reporting system.
 - `BookingStatus.IN_PROGRESS` exists in the database enum, but the current API has no transition that sets it.
 - `Service.isFeatured` exists in the database but is not used by current API queries or UI. The feature control used by the product is `Service.isPinned`.
-- There is no admin API or user interface, although `ADMIN` is a database role. Registration deliberately only accepts `CUSTOMER` and `VENDOR`.
 - There are no payment, vendor-verification workflow, notifications, or messaging endpoints yet.
 
 ## Architecture
