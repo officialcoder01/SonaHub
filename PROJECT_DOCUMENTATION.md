@@ -24,7 +24,8 @@ PostgreSQL is the system database; Cloudinary stores uploaded service images. Do
 - Up to three Cloudinary-hosted images per service and up to five pinned services per vendor profile.
 - Booking creation, customer cancellation, and vendor acceptance, rejection, and completion.
 - One review per completed booking, by the booking customer only.
-- Backend Jest/Supertest coverage for the main auth, vendor, service, booking, review, and recommendation flows.
+- An admin dashboard at `/admin/dashboard` with platform statistics, pending vendor summaries, recent activity, and service counts by category.
+- Backend Jest/Supertest coverage for auth, admin, vendor, service, booking, review, and recommendation flows.
 
 ## Current scope boundaries
 
@@ -33,8 +34,8 @@ The following are present in the schema or navigation but are not complete produ
 - `Message` records exist in Prisma, but there are no API routes or UI for messaging.
 - The vendor dashboard's Reviews and Settings pages are placeholders.
 - The Analytics page is a lightweight placeholder/stat display, not a reporting system.
-- `Service.isFeatured` exists in the database but is not used by current API queries or UI. The feature control used by the product is `Service.isPinned`.
-- There are no payment, vendor-verification workflow, notifications, or messaging endpoints yet.
+- The admin dashboard is read-only: it shows pending vendors and verification counts, but there are no vendor verification actions or broader admin management workflows.
+- There are no payment or notification endpoints yet.
 
 ## Architecture
 
@@ -42,7 +43,7 @@ The following are present in the schema or navigation but are not complete produ
 Browser (React + Vite + Tailwind)
         │ fetch + Bearer JWT for protected requests
         ▼
-Express API (routes → controllers → services)
+Express API (TypeScript routes → controllers → services)
         │ Prisma 7 + PostgreSQL adapter
         ▼
 PostgreSQL
@@ -64,19 +65,22 @@ The frontend keeps API calls in `frontend/src/services/`, authentication state i
 ```
 .
 ├── backend/
-│   ├── api/index.js                 Vercel serverless entry point
+│   ├── api/index.ts                 Vercel serverless entry point
 │   ├── prisma/schema.prisma         Database schema
 │   ├── prisma/migrations/           Migration history
 │   ├── seed.js                      Idempotent category seed script
+│   ├── prisma.config.ts             Prisma CLI configuration
+│   ├── tsconfig.json                Strict TypeScript configuration
 │   └── src/
-│       ├── app.js                   Express app, CORS, rate limiting, route mounting
-│       ├── routes/                  HTTP route definitions
-│       ├── controllers/             HTTP handlers
-│       ├── services/                Domain and Prisma logic
-│       ├── middlewares/             JWT, validation, Multer
-│       ├── validators/              express-validator and service field rules
-│       ├── utils/                   tokens, ratings, roles, Cloudinary upload helpers
-│       └── config/                  Prisma and Cloudinary setup
+│       ├── app.ts                   Express app, CORS, rate limiting, route mounting
+│       ├── server.ts                Local Node server entry point
+│       ├── routes/                  HTTP route definitions (mostly TypeScript)
+│       ├── controllers/             HTTP handlers (mostly TypeScript)
+│       ├── services/                Domain and Prisma logic (mostly TypeScript)
+│       ├── middlewares/             JWT, validation, Multer (TypeScript)
+│       ├── validators/              express-validator and service field rules (TypeScript)
+│       ├── utils/                   tokens, ratings, roles, Cloudinary upload helpers (TypeScript)
+│       └── config/                  Prisma and Cloudinary setup (TypeScript)
 ├── frontend/
 │   └── src/
 │       ├── App.jsx                  Route table
@@ -93,13 +97,15 @@ The frontend keeps API calls in `frontend/src/services/`, authentication state i
 └── UI_GUIDELINES.md                 Visual design guidelines
 ```
 
+The backend migration is partial: most `backend/src/` modules are TypeScript, while `vendorService.js`, `vendorRoutes.js`, `vendorBookingRoutes.js`, and `vendorController.js` remain JavaScript. TypeScript uses NodeNext module resolution; `.js` import specifiers in TypeScript files resolve to the compiled JavaScript modules.
+
 ## Technology choices
 
 | Area | Technology |
 | --- | --- |
 | Client | React 19, React Router 7, Vite 7 |
 | Styling/UX | Tailwind CSS, Framer Motion, Lucide React |
-| API | Node.js, Express 5 |
+| API | Node.js, Express 5, TypeScript |
 | Persistence | PostgreSQL 16, Prisma 7 with `@prisma/adapter-pg` |
 | Security | bcrypt password hashing, JSON Web Tokens, express-rate-limit, CORS |
 | Uploads | Multer memory storage and Cloudinary |
@@ -144,7 +150,7 @@ Create `frontend/.env` for the browser API base URL:
 VITE_API_URL=http://localhost:3000/api
 ```
 
-`VITE_API_URL` must include the `/api` suffix because frontend service modules append paths such as `/services` and `/auth`. The API accepts local Vite origins by default. In production it only accepts origins in `FRONTEND_ORIGIN` (comma-separated if more than one).
+`VITE_API_URL` must include the `/api` suffix because frontend service modules append paths such as `/services` and `/auth`. The API allows local development origins by default. `FRONTEND_ORIGIN` adds comma-separated browser origins for deployment; other non-local origins are rejected. Built-in localhost origins remain allowed in production.
 
 ## Running locally
 
@@ -162,7 +168,7 @@ This starts:
 - the API on `http://localhost:3000`;
 - Vite on `http://localhost:5173`.
 
-The compose API command generates the Prisma client and starts Nodemon. The PostgreSQL init script creates the test database when `POSTGRES_DB_TEST` is supplied. Apply database migrations and seed categories after the database is available:
+The compose API command generates the Prisma client and starts the TypeScript server through Nodemon and `tsx`. The PostgreSQL init script creates the test database when `POSTGRES_DB_TEST` is supplied. Apply database migrations and seed categories after the database is available:
 
 ```bash
 docker compose exec app npx prisma migrate deploy
@@ -182,6 +188,8 @@ docker compose exec app node seed.js
    npm run dev
    ```
 
+For a compiled local run, use `npm run build` and then `npm start`; the build emits the server to `dist/`. Run `npm run typecheck` to check the TypeScript source without emitting files.
+
 3. In a second terminal, in `frontend/`, install and start Vite:
 
    ```bash
@@ -200,13 +208,14 @@ Useful URLs:
 | Model | Key relationships and purpose |
 | --- | --- |
 | `User` | Login identity. Has role `CUSTOMER`, `VENDOR`, or `ADMIN`; optionally has one vendor profile; owns customer bookings and reviews. |
-| `VendorProfile` | One-to-one extension of a vendor user. Stores business name, bio, location, verification status, services, received bookings, and reviews. |
+| `VendorProfile` | One-to-one extension of a vendor user. Stores business name, bio, location, and `status` (`PENDING`, `VERIFIED`, or `NOT_VERIFIED`), plus services, received bookings, and reviews. |
 | `Category` | Named service grouping. The supplied seed adds nine artisan categories. |
 | `Service` | A listing owned by a vendor and category. Has images, bookings, reviews, archival state, and pinned/featured flags. |
 | `serviceImage` | A Cloudinary URL attached to a service. The model name is lowercase in the existing schema; preserve it unless doing a coordinated Prisma migration. |
 | `Booking` | Connects one customer, vendor, and service. Stores status, optional customer message, lifecycle timestamps, and one optional review. |
 | `Review` | One rating/comment created for one completed booking. It also links to its customer, vendor, and service for efficient queries. |
 | `Message` | Reserved data model for booking messages; unused by current endpoints/UI. |
+| `Activity` | Timestamped admin-dashboard activity records; displayed in the dashboard's recent-activity list. |
 
 ### Booking lifecycle
 
@@ -217,7 +226,7 @@ PENDING ──vendor accepts──> ACCEPTED ──vendor completes──> COMPL
    └──customer cancels──────────────> CANCELLED
 ```
 
-Only a pending booking can be accepted/rejected. A customer may cancel a pending or accepted booking. Only an accepted booking can be completed. `IN_PROGRESS` is defined but not currently reachable through the API.
+Only a pending booking can be accepted/rejected. A customer may cancel a pending or accepted booking. Only an accepted booking can be completed. The current booking statuses are `PENDING`, `ACCEPTED`, `REJECTED`, `COMPLETED`, and `CANCELLED`.
 
 ### Service lifecycle
 
@@ -230,7 +239,7 @@ Services are never hard-deleted through the app. `PATCH /api/services/:id` sets 
 - Login and registration return a JWT with `id` and `role`; its expiry is seven days.
 - The frontend stores the token and sanitized user object in `localStorage` and applies `Authorization: Bearer <token>` to protected API calls.
 - `ProtectedRoute` protects UI routes, but the API is the authorization authority.
-- Login endpoints are rate-limited to five requests per IP per 15-minute window. The limiter is mounted on `/api/auth`, so it currently also applies to registration requests.
+- The `/api/auth` router is rate-limited to five requests per IP per one-minute window. Because the limiter is mounted on the router, it also applies to registration requests.
 - Vendors must own a service or booking to manage it. A vendor profile is required before creating services or managing vendor bookings.
 
 ### Important implementation note
@@ -275,6 +284,12 @@ Base URL: `${VITE_API_URL}` in the frontend (normally `http://localhost:3000/api
 | `GET /vendors/me` | Vendor | Current profile plus service/booking/review aggregate information. |
 | `GET /recommendations/top-rated-vendors` | Public | Up to three vendors with at least three ratings, ordered by average rating then review count. |
 
+### Admin
+
+| Method and path | Access | Purpose |
+| --- | --- | --- |
+| `GET /admin/dashboard` | Admin | Returns platform totals, counts of pending and verified vendors, up to five pending vendor summaries, up to five recent activity records, and service counts for up to five categories. |
+
 ### Bookings and reviews
 
 | Method and path | Access | Purpose |
@@ -299,6 +314,7 @@ Validation middleware returns `422` for malformed registration, login, profile, 
 | `/market/services/:id` | Public | Service information, gallery, reviews, related services, vendor card, booking trigger. |
 | `/vendors/:id` | Public | Vendor profile. `:id` is a `VendorProfile.id`, not `User.id`. |
 | `/login`, `/register` | Public | Auth forms; redirect vendors to `/dashboard`, customers to `/`. |
+| `/admin/dashboard` | Admin | Admin dashboard with platform totals, pending vendor summaries, recent activity, and service counts by category. |
 | `/bookings` | Logged-in customer or vendor | Customer-booking view, cancellation, details, and review submission. |
 | `/dashboard/*` | Vendor | Dashboard layout and vendor-only tools. |
 | `/dashboard` | Vendor | Overview and onboarding/profile creation when no vendor profile exists. |
@@ -317,8 +333,12 @@ Backend tests are in `Test/backend/` and mock Prisma/Cloudinary where appropriat
 
 ```bash
 cd backend
+npm run typecheck
+npm run build
 npm test
 ```
+
+`npm start` runs the compiled server from `dist/server.js`; Docker Compose uses the TypeScript development server instead.
 
 Run client quality checks separately:
 
@@ -342,7 +362,7 @@ Before shipping a backend schema change, also run the appropriate Prisma migrati
 
 ## Deployment notes
 
-`backend/api/index.js` exports the Express app for Vercel, and `backend/vercel.json` configures the backend deployment. In a deployed environment, configure the production database URL, `JWT_SECRET`, all Cloudinary values, and `FRONTEND_ORIGIN`. The production CORS policy does not allow arbitrary browser origins.
+`backend/api/index.ts` exports the Express app for Vercel, and `backend/vercel.json` routes requests to that TypeScript entry point. In a deployed environment, configure the production database URL, `JWT_SECRET`, all Cloudinary values, and `FRONTEND_ORIGIN`. The production CORS policy does not allow arbitrary browser origins.
 
 Ensure the frontend build receives `VITE_API_URL` pointing at the deployed API with `/api` appended, and that the API's `FRONTEND_ORIGIN` includes the deployed frontend origin exactly.
 
@@ -351,8 +371,6 @@ Ensure the frontend build receives `VITE_API_URL` pointing at the deployed API w
 The data model and navigation suggest these natural extensions:
 
 1. Add customer-role enforcement during booking creation and ensure frontend booking controls mirror it.
-2. Implement the `IN_PROGRESS` booking transition or remove it if it is not part of the desired workflow.
-3. Build messaging endpoints/UI around the existing `Message` model, with booking-participant authorization.
-4. Decide whether `isFeatured` is needed alongside `isPinned`; remove or implement it consistently.
-5. Build the dashboard reviews, settings, and analytics features against explicit API contracts.
-6. Add an admin workflow and vendor verification process if the `ADMIN`/`isVerified` fields are to become functional.
+2. Build messaging endpoints/UI around the existing `Message` model, with booking-participant authorization.
+3. Build the vendor dashboard reviews, settings, and analytics features against explicit API contracts.
+4. Add vendor verification actions to the admin dashboard; it currently displays verification counts and pending vendors but does not let admins change verification status.
